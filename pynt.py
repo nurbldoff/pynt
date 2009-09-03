@@ -61,7 +61,7 @@ class PyntMain(object):
         # setup GUI 
         #self.builder = gtk.Builder()
         #self.builder.add_from_file("pynt.glade")
-        self.gladefile = "pynt3.glade"  
+        self.gladefile = "pynt.glade"  
         self.mainTree = gtk.glade.XML(self.gladefile, "mainwindow")
         self.peTree = gtk.glade.XML(self.gladefile, "palette_editor")
         
