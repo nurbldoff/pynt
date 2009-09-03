@@ -22,7 +22,7 @@ from __future__ import division
 #import numpy
 import pygtk, gobject
 pygtk.require('2.0')
-import gtk
+import gtk, gtk.glade
 import Image, ImageDraw, ImageChops
 import random, math
 import cPickle
@@ -59,10 +59,14 @@ class PyntMain(object):
         #self.brush = PyntBrush((self.width, self.width), color=self.color)
 
         # setup GUI 
-        self.builder = gtk.Builder()
-        self.builder.add_from_file("pynt.glade")
+        #self.builder = gtk.Builder()
+        #self.builder.add_from_file("pynt.glade")
+        self.gladefile = "pynt3.glade"  
+        self.mainTree = gtk.glade.XML(self.gladefile, "mainwindow")
+        self.peTree = gtk.glade.XML(self.gladefile, "palette_editor")
         
-        self.pyntTree = self.builder
+
+        #self.mainTree = self.builder
 
 
         # Drawing area
@@ -72,7 +76,7 @@ class PyntMain(object):
         self.paper = PyntPaper(self.stack)
         print "done"
 
-        self.scrolledwindow = self.pyntTree.get_object("scrolledwindow")
+        self.scrolledwindow = self.mainTree.get_widget("scrolledwindow")
         self.scrolledwindow.add(self.paper)
 
         self.paper.connect("fgcolor-picked", self.set_fgcolor)
@@ -125,12 +129,12 @@ class PyntMain(object):
                "on_pe_button_undo_clicked" : self.on_pe_button_undo
                }
 
-        self.builder.connect_signals(dic)
+        self.mainTree.signal_autoconnect(dic)
         
         """
         self.drawing_area = gtk.DrawingArea()
         self.view = PyntView(self.drawing_area, self.stack)
-        self.viewport = self.pyntTree.get_object("viewport")
+        self.viewport = self.mainTree.get_object("viewport")
         
         self.drawing_area.set_size_request(*self.view.get_size())
 
@@ -158,12 +162,12 @@ class PyntMain(object):
         self.pointer_crosshair = gtk.gdk.Cursor(gtk.gdk.TCROSS)
         self.drawing_area.window.set_cursor(self.pointer_crosshair)
         self.drawing_area.show()
-        """
+        """             
 
         #palette
 	gobject.type_register(PyntPaletteView)
 
-        self.vbox_palette = self.pyntTree.get_object("vbox_palette")
+        self.vbox_palette = self.mainTree.get_widget("vbox_palette")
 
         #self.stack.palette = PyntPalette()
         self.paletteview = PyntPaletteView(palette=self.stack.palette)
@@ -173,22 +177,28 @@ class PyntMain(object):
         self.paletteview.connect("fgcolor_picked", self.set_fgcolor)
         self.paletteview.connect("bgcolor_picked", self.set_bgcolor)
         self.paletteview.show()
-        self.label_palette = self.pyntTree.get_object("label_palette")
+        self.label_palette = self.mainTree.get_widget("label_palette")
 
-        self.pe_vbox_main = self.pyntTree.get_object("pe_vbox_main")
-        self.pe_spinbutton_red = self.pyntTree.get_object("pe_spinbutton_red")
-        self.pe_spinbutton_green = self.pyntTree.get_object("pe_spinbutton_green")
-        self.pe_spinbutton_blue = self.pyntTree.get_object("pe_spinbutton_blue")
-        self.pe_toggle_spread = self.pyntTree.get_object("pe_toggle_spread")
+        self.pe_vbox_main = self.peTree.get_widget("pe_vbox_main")
+        self.pe_spinbutton_red = self.peTree.get_widget("pe_spinbutton_red")
+        self.pe_spinbutton_green = self.peTree.get_widget("pe_spinbutton_green")
+        self.pe_spinbutton_blue = self.peTree.get_widget("pe_spinbutton_blue")
+        self.pe_toggle_spread = self.peTree.get_widget("pe_toggle_spread")
         
         self.pe_r_adj = self.pe_spinbutton_red.get_adjustment()
         self.pe_g_adj = self.pe_spinbutton_green.get_adjustment()
         self.pe_b_adj = self.pe_spinbutton_blue.get_adjustment()
+        self.pe_hscale_red = self.peTree.get_widget("pe_hscale_red")
+        self.pe_hscale_green = self.peTree.get_widget("pe_hscale_green")
+        self.pe_hscale_blue = self.peTree.get_widget("pe_hscale_blue")
+        self.pe_hscale_red.set_adjustment(self.pe_r_adj)
+        self.pe_hscale_green.set_adjustment(self.pe_g_adj)
+        self.pe_hscale_blue.set_adjustment(self.pe_b_adj)
         #self.pe_r_adj.set_upper(255)
         #self.pe_r_adj.set_page_size(0)
-        self.pe_r_adj.set_all(value=0, lower=0, upper=255, step_increment=1, page_increment=1, page_size=0)
-        self.pe_g_adj.set_all(value=0, lower=0, upper=255, step_increment=1, page_increment=1, page_size=0)
-        self.pe_b_adj.set_all(value=0, lower=0, upper=255, step_increment=1, page_increment=1, page_size=0)
+        #self.pe_r_adj.set_all(value=0, lower=0, upper=255, step_increment=1, page_increment=1, page_size=0)
+        #self.pe_g_adj.set_all(value=0, lower=0, upper=255, step_increment=1, page_increment=1, page_size=0)
+        #self.pe_b_adj.set_all(value=0, lower=0, upper=255, step_increment=1, page_increment=1, page_size=0)
         self.pe_r_adj.connect("value-changed", self.on_pe_color_edited)
         self.pe_g_adj.connect("value-changed", self.on_pe_color_edited)
         self.pe_b_adj.connect("value-changed", self.on_pe_color_edited)
@@ -206,16 +216,16 @@ class PyntMain(object):
 
 
         # menu
-        self.menu_animated = self.pyntTree.get_object("menu_animated")
-        self.menu_layer_visible = self.pyntTree.get_object("menu_layer_visible")
+        self.menu_animated = self.mainTree.get_widget("menu_animated")
+        self.menu_layer_visible = self.mainTree.get_widget("menu_layer_visible")
 
         # statusbarv stuff
-        self.label_layer = self.pyntTree.get_object("label_layer")
-        self.frame_layer = self.pyntTree.get_object("label_frame")
-        self.label_coords = self.pyntTree.get_object("label_coords")
+        self.label_layer = self.mainTree.get_widget("label_layer")
+        self.frame_layer = self.mainTree.get_widget("label_frame")
+        self.label_coords = self.mainTree.get_widget("label_coords")
 
         # scrollbars
-        #self.scrolling_window = self.pyntTree.get_object("scrolling_window")
+        #self.scrolling_window = self.mainTree.get_widget("scrolling_window")
         self.hadj = self.scrolledwindow.get_hadjustment()
         self.vadj = self.scrolledwindow.get_vadjustment()
         #self.hadjustment.connect("value_changed", lambda x: self.image_scrolled())
@@ -225,7 +235,7 @@ class PyntMain(object):
         #self.hadj.set_page_size(50)
         #self.vadj.set_upper(100)
 
-        #self.button_width = self.builder.get_object("button_width")
+        #self.button_width = self.builder.get_widget("button_width")
         #self.button_width.configure(None, 1, 0)
         #self.button_width.set_range(1.,99.)
         
@@ -275,7 +285,7 @@ class PyntMain(object):
         self.label_coords.set_text("(%d, %d)"%coords)
 
     def on_menu_paletteeditor(self, widget):
-        self.palette_editor = self.pyntTree.get_object("palette_editor")
+        self.palette_editor = self.peTree.get_widget("palette_editor")
         self.palette_editor.show()
 
     def on_pe_color_edited(self, widget):
@@ -466,9 +476,9 @@ class PyntMain(object):
     def set_tool(self, tool):
         print "Setting tool", tool
         if tool != self.paper.tool:
-            last_tool_btn = self.pyntTree.get_object("button_"+self.paper.tool)
+            last_tool_btn = self.mainTree.get_widget("button_"+self.paper.tool)
             last_tool_btn.set_active(False)
-            new_tool_btn = self.pyntTree.get_object("button_"+tool)
+            new_tool_btn = self.mainTree.get_widget("button_"+tool)
             #new_tool_btn.set_active(True)
             self.paper.tool = tool
             print self.paper.tool

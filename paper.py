@@ -162,34 +162,35 @@ class PyntPaper(gtk.DrawingArea):
         z = self.zoom
         region = gtk.gdk.region_rectangle((0,0,w//z*z,h//z*z))
 
-        """
-        self.window.move_region(region, ((self.dx-dx)//z)*z, ((self.dy-dy)//z)*z)
-        sx, sy = self.dx-dx, self.dy-dy
+
+
+        #self.window.move_region(region, ((self.dx-dx)//z)*z, ((self.dy-dy)//z)*z)
+        #sx, sy = self.dx-dx, self.dy-dy
         
         
-        if sx > 0:
-            self.invalidate_bbox((0,0,sx,h))
-        elif sx < 0:
-            self.invalidate_bbox((w+sx-z,0,w,h))
+        #if sx > 0:
+        #    self.invalidate_bbox((0,0,sx,h))
+        #elif sx < 0:
+        #    self.invalidate_bbox((w+sx-z,0,w,h))
     
-        if sy > 0:
-            self.invalidate_bbox((0,0,w,sy))
-        elif sy < 0:
-            self.invalidate_bbox((0,h+sy-z,w,h))
+        #if sy > 0:
+        #    self.invalidate_bbox((0,0,w,sy))
+        #elif sy < 0:
+        #    self.invalidate_bbox((0,h+sy-z,w,h))
 
         
-        """
-        
-        """
-        if x == 0 and w < wmax:
-            self.dx = -(wmax-w)//2
-        else:
-            self.dx = (x//self.zoom)*self.zoom
-        if y == 0 and h < hmax:
-            self.dy = -(hmax-h)//2
-        else:
-            self.dy = (y//self.zoom)*self.zoom
-        """
+
+#         if x == 0 and w < wmax:
+#             self.dx = -(wmax-w)//2
+#         else:
+#             self.dx = (x//self.zoom)*self.zoom
+#         if y == 0 and h < hmax:
+#             self.dy = -(hmax-h)//2
+#         else:
+#             self.dy = (y//self.zoom)*self.zoom
+
+ 
+
         self.stack.clear_scratch()
         self.window.invalidate_rect((0, 0, w, h), False)
         self.dx, self.dy = dx, dy
