@@ -56,7 +56,7 @@ class PyntPaper(gtk.DrawingArea):
 # --- GUI callbacks ---
 
     def do_realize(self):
-        print "realize!"
+        #print "realize!"
 
         self.set_flags(self.flags() | gtk.REALIZED)
 
@@ -128,7 +128,7 @@ class PyntPaper(gtk.DrawingArea):
         x, y, w, h = e.area
 
         #print "expose!", "x0:", x0, "y0:", y0, "x1:", x1, "y1:", y1
-        print "expose!", "x:", x, "y:", y, "w:", w, "h:", h
+        #print "expose!", "x:", x, "y:", y, "w:", w, "h:", h
 
         self.update_pixmap((x, y, x+w, y+h))
         self.window.begin_paint_rect((x,y,w,h))
@@ -528,7 +528,7 @@ class PyntPaper(gtk.DrawingArea):
             
     def update_pixmap(self, bbox):
         wtot, htot = self.stack.resolution[0]*self.zoom, self.stack.resolution[1]*self.zoom
-        print "update_pixmap:", bbox
+        #print "update_pixmap:", bbox
         
         x0, y0, x1, y1 = bbox
         x0 = max(0, x0)
@@ -536,9 +536,8 @@ class PyntPaper(gtk.DrawingArea):
         x1 = min(wtot, x1)
         y1 = min(htot, y1)
 
-
         dx, dy = self.dx, self.dy
-        w, h = ((x1-x0)//self.zoom)*self.zoom, ((y1-y0)//self.zoom)*self.zoom
+        w, h = ((x1-x0)//self.zoom+1)*self.zoom, ((y1-y0)//self.zoom+1)*self.zoom
         #w, h = int(self.zoom*((x1-x0)/self.zoom+0.5)), int(self.zoom*((y1-y0)/self.zoom+0.5))
         wtot, htot = self.stack.resolution[0]*self.zoom, self.stack.resolution[1]*self.zoom
         #print "updating pixmap:", w, h
