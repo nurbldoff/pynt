@@ -532,7 +532,7 @@ class PyntPaper(gtk.DrawingArea):
             self.zoom = zoom
             #self._hadj.upper = self.stack.resolution[0]*self.zoom
             #self._vadj.upper = self.stack.resolution[1]*self.zoom
-            #self.pixmap.draw_rectangle(self.gc, True, 0, 0, w, h)
+            self.pixmap.draw_rectangle(self.gc, True, 0, 0, w, h)
             #self.stack.clear_scratch()
             #self.window.invalidate_rect((0, 0, w, h), False)            
             #self.set_adjustments(self.get_img_coord(
