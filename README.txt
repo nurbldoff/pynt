@@ -15,6 +15,7 @@ Right now the only color mode supported is 256 color indexed. The palette works 
 
 Unlike Dpaint, Pynt has multiple undo/redo, which is nice. Undo is currently a bit inconsistent and only works on drawing operations and destructiva layer ops.
 
+There are keyboard shortcuts for the tools (p:Pencil, o:pOints, l:Line, f:Fill, r:Rectangle, e:Ellipse, b:Brush). Holding Shift switches to "filled mode" where that makes sense. Ctrl + left mousebutton to "grab" the paper and scroll it around.
 
 Save/load
 
