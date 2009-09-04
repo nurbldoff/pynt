@@ -89,7 +89,7 @@ class PyntMain(object):
         dic = {"on_mainWindow_destroy" : gtk.main_quit,
                #"on_zoom_in" :  lambda w: self.set_zoom(self.view.zoom*2),
                "on_zoom_in" :  lambda w: self.paper.set_zoom(self.paper.zoom*2),
-               "on_zoom_out" :  lambda w: self.paper.set_zoom(self.paper.zoom/2),
+               "on_zoom_out" :  lambda w: self.paper.set_zoom(self.paper.zoom//2),
                "on_next_layer" :  lambda w: self.next_layer(),
                "on_prev_layer" :  lambda w: self.prev_layer(),
                "on_add_layer" :  lambda w: self.add_layer(),
@@ -692,6 +692,9 @@ class PyntMain(object):
                 self.stack = PyntStack(resolution=img.size, data = img)
                 self.stack.set_palette(lut)
                 self.stack.palette.set_colors(lut)
+                self.paletteview.palette = self.pe_paletteview.palette = self.stack.palette
+                self.paletteview.invalidate_all()
+                self.pe_paletteview.invalidate_all()
         
             self.paper.stack = self.stack
             self.paper.invalidate()

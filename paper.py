@@ -46,7 +46,7 @@ class PyntPaper(gtk.DrawingArea):
         self.brush = PyntBrush()
 
         self.dx = self.dy = 0          #scrollbar offsets
-        self.lx = self.ly = None       #last mouse point (for drawing)
+        self.lx = self.ly = 0       #last mouse point (for drawing)
 
         self.keys_pressed = []
 
@@ -130,7 +130,7 @@ class PyntPaper(gtk.DrawingArea):
         #print "expose!", "x0:", x0, "y0:", y0, "x1:", x1, "y1:", y1
         #print "expose!", "x:", x, "y:", y, "w:", w, "h:", h
 
-        self.update_pixmap((x, y, x+w, y+h))
+        self.update_pixmap((x, y, x+(w//z+(z-1))*z, y+(h//z+(z-1))*z))
         self.window.begin_paint_rect((x,y,w,h))
         self.window.draw_drawable(self.gc, self.pixmap, x, y, x, y, w, h)      
 
@@ -159,8 +159,8 @@ class PyntPaper(gtk.DrawingArea):
         dx = (x//self.zoom)*self.zoom
         dy = (y//self.zoom)*self.zoom
 
-        z = self.zoom
-        region = gtk.gdk.region_rectangle((0,0,w//z*z,h//z*z))
+        #--z = self.zoom
+        #region = gtk.gdk.region_rectangle((0,0,w//z*z,h//z*z))
 
 
 
@@ -193,6 +193,7 @@ class PyntPaper(gtk.DrawingArea):
 
         self.stack.clear_scratch()
         self.window.invalidate_rect((0, 0, w, h), False)
+        print "dx, dy:", self.dx, self.dy
         self.dx, self.dy = dx, dy
 
 
@@ -210,6 +211,9 @@ class PyntPaper(gtk.DrawingArea):
     def do_motion_notify_event(self, e):
         x, y = int(e.x), int(e.y)
         xi, yi = self.get_img_coord(x, y)
+        if (xi, yi) == self.get_img_coord(self.lx, self.ly):
+                print "no movement"
+                return None
         #a, b, state = e.window.get_pointer()
         #if all((xi >= 0, xi < self.stack.resolution[0], y >= 0, y < self.stack.resolution[1])):
 
@@ -218,7 +222,7 @@ class PyntPaper(gtk.DrawingArea):
                 self.draw_brush(self.brush, self.stack.palette.fgcolor, 
                                 (x, y), transient=True)
                 self.emit("coords-changed", self.get_img_coord(x, y)) 
-            #self.lx, self.ly = x, y
+                self.lx, self.ly = x, y
         else:
             if "Control_L" in self.keys_pressed:  #scroll image
                 sx = self.lx - x
@@ -241,7 +245,7 @@ class PyntPaper(gtk.DrawingArea):
                     color = self.stack.palette.bgcolor
 
                 if self.tool == "pencil":
-                    if self.lx is not None and self.ly is not None:
+                    #if self.lx is not None and self.ly is not None:
                         self.draw_line(color, self.line_width, (self.lx, self.ly, x, y))
                         self.draw_brush(self.brush, color, (x, y), update=False)
                         self.lx, self.ly = x, y
@@ -322,7 +326,7 @@ class PyntPaper(gtk.DrawingArea):
         else:
             self.stack.apply_scratch()
             
-        self.lx = self.ly = None
+        #self.lx = self.ly = None
         self.stack.mode = None
         self.stack.clear_scratch()
 
@@ -473,6 +477,7 @@ class PyntPaper(gtk.DrawingArea):
         self.window.invalidate_rect((x0, y0, x1-x0, y1-y0), False)
 
     def invalidate_img_bbox(self, bbox):
+        print "invalidate_img_bbox():", self.get_paper_bbox(bbox)
         self.invalidate_bbox(self.get_paper_bbox(bbox))
 
     def invalidate(self):
@@ -480,6 +485,8 @@ class PyntPaper(gtk.DrawingArea):
         self.window.invalidate_rect((0, 0, w, h), True)
         
     def set_zoom(self, zoom):
+
+        print "zoomin'...", 
 
         if zoom >= 1:  #zooming to less than 1 is flaky...
 
@@ -489,31 +496,38 @@ class PyntPaper(gtk.DrawingArea):
             yoffs = self._vadj.value
             xaim = (xoffs + x)*(zoom/self.zoom)
             yaim = (yoffs + y)*(zoom/self.zoom)
-            print "xvalue:", ((xaim-x)//zoom)*zoom,
-            print "yvalue:", ((yaim-y)//zoom)*zoom,
+            #print "xvalue:", ((xaim-x)//zoom)*zoom
+            #print "yvalue:", ((yaim-y)//zoom)*zoom
 
             xvalue=((xaim-x)//zoom)*zoom
+            if xvalue > self.stack.resolution[0]*zoom - w:
+                xvalue = (self.stack.resolution[0]*zoom - w)//zoom * zoom
             if xvalue < 0:
                 xvalue = 0
-            elif xvalue > self.stack.resolution[0]*zoom - w:
-                xvalue = self.stack.resolution[0]*zoom - w
 
             yvalue=((yaim-y)//zoom)*zoom
+            if yvalue > self.stack.resolution[1]*zoom - h:
+                yvalue = (self.stack.resolution[1]*zoom - h)//zoom * zoom
             if yvalue < 0:
                 yvalue = 0
-            elif yvalue > self.stack.resolution[1]*zoom - h:
-                yvalue = self.stack.resolution[1]*zoom - h
+
+            print "xvalue, yvalue:", xvalue, yvalue
 
             self._hadj.set_all(value=xvalue,
                                lower=0, #min(0, ((xaim-x)//zoom)*zoom),
-                               upper=self.stack.resolution[0]*zoom, 
+                               upper=self.stack.resolution[0]*zoom-1, 
                                step_increment=zoom, page_increment=1, 
                                page_size=w)
             self._vadj.set_all(value=yvalue,
                                lower=0, #min(0, ((yaim-y)//zoom)*zoom),
-                               upper=self.stack.resolution[1]*zoom, 
+                               upper=self.stack.resolution[1]*zoom-1, 
                                step_increment=zoom, page_increment=1, 
                                page_size=h)
+
+            #update the view
+            self.stack.clear_scratch()
+            w, h = int(round(self._hadj.page_size)), int(round(self._vadj.page_size))
+            self.window.invalidate_rect((0, 0, w, h), False)
 
             self.zoom = zoom
             #self._hadj.upper = self.stack.resolution[0]*self.zoom
@@ -529,7 +543,7 @@ class PyntPaper(gtk.DrawingArea):
             
     def update_pixmap(self, bbox):
         wtot, htot = self.stack.resolution[0]*self.zoom, self.stack.resolution[1]*self.zoom
-        #print "update_pixmap:", bbox
+        print "update_pixmap:", bbox
         
         x0, y0, x1, y1 = bbox
         x0 = max(0, x0)
@@ -538,10 +552,13 @@ class PyntPaper(gtk.DrawingArea):
         y1 = min(htot, y1)
 
         dx, dy = self.dx, self.dy
-        w, h = ((x1-x0)//self.zoom+1)*self.zoom, ((y1-y0)//self.zoom+1)*self.zoom
+
+        z = self.zoom
+        w, h = ((x1-x0)//z)*z, ((y1-y0)//z)*z
+        #w, h = min((wtot-x0)*z, ((x1-x0)//z)*z), min((htot-y0), ((y1-y0)//z)*z)
         #w, h = int(self.zoom*((x1-x0)/self.zoom+0.5)), int(self.zoom*((y1-y0)/self.zoom+0.5))
-        wtot, htot = self.stack.resolution[0]*self.zoom, self.stack.resolution[1]*self.zoom
-        #print "updating pixmap:", w, h
+
+        print "updating pixmap:", w, h
         
         if self.zoom != 1:
             img_bbox = self.get_img_bbox((x0, y0, x0+w, y0+h)) 

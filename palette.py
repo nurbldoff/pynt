@@ -346,24 +346,26 @@ class PyntPaletteView(gtk.DrawingArea):
 		#	self.check_for_new_stars(event.x)	
 			
         def invalidate_color(self, n):
-                print "invalidating", n
-                offset = (256 // self.pages) * self.page
-                if n >= offset and n <= offset+256//self.pages:
-                        wtot, htot = self.window.get_size()
-                        rows = (256//self.pages)//self.columns
-                        cols = self.columns
-                        w = (wtot-1)//cols
-                        h = (htot-1)//rows
-                        row = (n-offset)%rows
-                        col = (n-offset)//rows
-                        self.window.invalidate_rect((col*w, row*h ,w+2, h+2), False)
-                        print "updating ciolor:", n, col*w, row*h
-                else:
-                        print "color is off screen"
+                if self.window is not None:
+                        print "invalidating", n
+                        offset = (256 // self.pages) * self.page
+                        if n >= offset and n <= offset+256//self.pages:
+                                wtot, htot = self.window.get_size()
+                                rows = (256//self.pages)//self.columns
+                                cols = self.columns
+                                w = (wtot-1)//cols
+                                h = (htot-1)//rows
+                                row = (n-offset)%rows
+                                col = (n-offset)//rows
+                                self.window.invalidate_rect((col*w, row*h ,w+2, h+2), False)
+                                print "updating ciolor:", n, col*w, row*h
+                        else:
+                                print "color is off screen"
 
         def invalidate_all(self):
-                wtot, htot = self.window.get_size()
-                self.window.invalidate_rect((0, 0, wtot, htot), False)
+                if self.window is not None:
+                        wtot, htot = self.window.get_size()
+                        self.window.invalidate_rect((0, 0, wtot, htot), False)
         
 	def do_button_press_event(self, event):
 		"""The button press event virtual method"""

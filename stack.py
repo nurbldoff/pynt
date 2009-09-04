@@ -329,8 +329,8 @@ class PyntStack(object):
             self.scratch.image.paint(color, (pos[0]-w+1, pos[1]-h+1), 
                                      mask=brush.get_mask())
         last = self.last_brush_bbox
-        self.last_brush_bbox=((pos[0]-w+1, pos[1]-h+1, pos[0]+w+2, pos[1]+h+2))
-        return last
+        self.last_brush_bbox = ((pos[0]-w+1, pos[1]-h+1, pos[0]+w+2, pos[1]+h+2))
+        return last #combine_bbox(last, bbox)
 
     def erase_last_brush(self, brush):
         w,h = brush.size
