@@ -46,6 +46,8 @@ class PyntMain(object):
         #else:
         #    self.image = image
 
+        self.save_file = None
+
         self.stack=PyntStack()
 
         #self.tool = "pencil"
@@ -123,6 +125,7 @@ class PyntMain(object):
                "on_button_palette_next_clicked" : self.palette_next,
                "on_menu_save_activate" : self.on_save_image,
                "on_menu_load_activate" : self.on_load_image,
+               "on_menu_save_as" : self.on_save_image_as,
                "on_menu_import_image_activated" : self.on_import_image,
                "on_menu_export_image_activated" : self.on_export_image,
 
@@ -636,15 +639,27 @@ class PyntMain(object):
 
     def on_save_image(self, widget):
         """Save current image as a Pynt file (pickled python object)"""
-        save_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE, "test")
+        if self.save_file is None:
+            self.on_save_image_as(self, widget)
+        else:
+            pyntdata = PyntData(self.stack)
+            pyntdata.save(self.save_file)
+
+
+    def on_save_image_as(self, widget):
+        """Save current image as a Pynt file (pickled python object)"""
+        save_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE, "Untitled.pynt")
         if save_file != "":
+            if not save_file.endswith(".pynt"):
+                save_file += ".pynt"
             pyntdata = PyntData(self.stack)
             pyntdata.save(save_file)
+            self.save_file = save_file
 
 
     def on_load_image(self, widget):
         """Load a Pynt image file"""
-        load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN, "test")
+        load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN, "")
         if load_file != "":
             f = open(load_file, "r")
             pyntdata = cPickle.load(f)

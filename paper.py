@@ -374,7 +374,7 @@ class PyntPaper(gtk.DrawingArea):
         w, h = brush.size
         x, y = self.get_img_coord(*coords)
         if x>0 and y>0 and x<self.stack.resolution[0] and y<self.stack.resolution[1]:
-            if not brush.solid_color:  # and  self.stack.mode == "draw_fg":
+            if not brush.solid_color and brush.custom_brush:
                 tmp = self.stack.draw_brush(brush, None, (x, y), transient=transient)
             else:
                 tmp = self.stack.draw_brush(brush, color, (x, y), transient=transient)        
