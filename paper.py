@@ -130,7 +130,8 @@ class PyntPaper(gtk.DrawingArea):
         #print "expose!", "x0:", x0, "y0:", y0, "x1:", x1, "y1:", y1
         #print "expose!", "x:", x, "y:", y, "w:", w, "h:", h
 
-        self.update_pixmap((x, y, x+(w//z+(z-1))*z, y+(h//z+(z-1))*z))
+        self.update_pixmap((x, y, x+(w//z+1)*z, y+(h//z+1)*z))
+        print "update_pixmap:", (x, y, x+(w//z+(z-1))*z, y+(h//z+(z-1))*z)
         self.window.begin_paint_rect((x,y,w,h))
         self.window.draw_drawable(self.gc, self.pixmap, x, y, x, y, w, h)      
 
@@ -373,7 +374,7 @@ class PyntPaper(gtk.DrawingArea):
         w, h = brush.size
         x, y = self.get_img_coord(*coords)
         if x>0 and y>0 and x<self.stack.resolution[0] and y<self.stack.resolution[1]:
-            if brush.custom_brush:
+            if not brush.solid_color:  # and  self.stack.mode == "draw_fg":
                 tmp = self.stack.draw_brush(brush, None, (x, y), transient=transient)
             else:
                 tmp = self.stack.draw_brush(brush, color, (x, y), transient=transient)        
@@ -516,12 +517,12 @@ class PyntPaper(gtk.DrawingArea):
             self._hadj.set_all(value=xvalue,
                                lower=0, #min(0, ((xaim-x)//zoom)*zoom),
                                upper=self.stack.resolution[0]*zoom-1, 
-                               step_increment=zoom, page_increment=1, 
+                               step_increment=zoom, page_increment=zoom, 
                                page_size=w)
             self._vadj.set_all(value=yvalue,
                                lower=0, #min(0, ((yaim-y)//zoom)*zoom),
                                upper=self.stack.resolution[1]*zoom-1, 
-                               step_increment=zoom, page_increment=1, 
+                               step_increment=zoom, page_increment=zoom, 
                                page_size=h)
 
             #update the view

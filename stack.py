@@ -322,7 +322,7 @@ class PyntStack(object):
         if self.last_brush_bbox is not None and transient:
             self.scratch.image.erase(self.last_brush_bbox)
         if color is None:
-            #print "no color"
+            print "no color"
             self.scratch.image.paste(brush.data, (pos[0]-w+1, pos[1]-h+1),
                                      mask=brush.get_mask())
         else:

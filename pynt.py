@@ -110,6 +110,7 @@ class PyntMain(object):
                "on_menu_brush_vflip" : lambda w: self.paper.brush.flip(vertically=True),
                "on_menu_brush_rotate_plus90" : lambda w: self.paper.brush.rotate(90),
                "on_menu_brush_rotate_minus90" : lambda w: self.paper.brush.rotate(-90),
+               "on_brush_solid_color_toggle" : self.on_brush_solid_color_toggle,
                "on_menu_clear" : self.on_clear_layer,
                "on_menu_animated_toggled" : self.toggle_frame,
                "on_menu_layer_visible_toggled" : self.toggle_visible,
@@ -131,38 +132,37 @@ class PyntMain(object):
 
         self.mainTree.signal_autoconnect(dic)
         
-        """
-        self.drawing_area = gtk.DrawingArea()
-        self.view = PyntView(self.drawing_area, self.stack)
-        self.viewport = self.mainTree.get_object("viewport")
+
+#         self.drawing_area = gtk.DrawingArea()
+#         self.view = PyntView(self.drawing_area, self.stack)
+#         self.viewport = self.mainTree.get_object("viewport")
         
-        self.drawing_area.set_size_request(*self.view.get_size())
+#         self.drawing_area.set_size_request(*self.view.get_size())
 
-        #self.viewport.show()
+#         #self.viewport.show()
 
-        # Event signals
-        self.drawing_area.connect("expose_event", self.expose_event)
-        # size/pos/stacking change
-        self.drawing_area.connect("configure_event", self.configure_event)
+#         # Event signals
+#         self.drawing_area.connect("expose_event", self.expose_event)
+#         # size/pos/stacking change
+#         self.drawing_area.connect("configure_event", self.configure_event)
 
-        self.drawing_area.connect("motion_notify_event", self.motion_notify_event)
-        self.drawing_area.connect("button_press_event", self.button_press_event)
-        self.drawing_area.connect("button_release_event", self.button_release_event)
-        self.drawing_area.connect("leave_notify_event", self.leave_notify_event)
+#         self.drawing_area.connect("motion_notify_event", self.motion_notify_event)
+#         self.drawing_area.connect("button_press_event", self.button_press_event)
+#         self.drawing_area.connect("button_release_event", self.button_release_event)
+#         self.drawing_area.connect("leave_notify_event", self.leave_notify_event)
 
-        self.drawing_area.set_events(gtk.gdk.EXPOSURE_MASK
-                            | gtk.gdk.LEAVE_NOTIFY_MASK
-                            | gtk.gdk.BUTTON_PRESS_MASK
-                            | gtk.gdk.BUTTON_RELEASE_MASK
-                            | gtk.gdk.POINTER_MOTION_MASK
-                            | gtk.gdk.POINTER_MOTION_HINT_MASK)
+#         self.drawing_area.set_events(gtk.gdk.EXPOSURE_MASK
+#                             | gtk.gdk.LEAVE_NOTIFY_MASK
+#                             | gtk.gdk.BUTTON_PRESS_MASK
+#                             | gtk.gdk.BUTTON_RELEASE_MASK
+#                             | gtk.gdk.POINTER_MOTION_MASK
+#                             | gtk.gdk.POINTER_MOTION_HINT_MASK)
 
-        self.viewport.add(self.drawing_area)
+#         self.viewport.add(self.drawing_area)
 
-        self.pointer_crosshair = gtk.gdk.Cursor(gtk.gdk.TCROSS)
-        self.drawing_area.window.set_cursor(self.pointer_crosshair)
-        self.drawing_area.show()
-        """             
+#         self.pointer_crosshair = gtk.gdk.Cursor(gtk.gdk.TCROSS)
+#         self.drawing_area.window.set_cursor(self.pointer_crosshair)
+#         self.drawing_area.show()
 
         #palette
 	gobject.type_register(PyntPaletteView)
@@ -230,20 +230,22 @@ class PyntMain(object):
         self.vadj = self.scrolledwindow.get_vadjustment()
         #self.hadjustment.connect("value_changed", lambda x: self.image_scrolled())
         #self.vadjustment.connect("value_changed", lambda x: self.image_scrolled())
-
+        
         #self.hadj.set_upper(100)
         #self.hadj.set_page_size(50)
         #self.vadj.set_upper(100)
 
-        #self.button_width = self.builder.get_widget("button_width")
+        self.button_width = self.mainTree.get_widget("button_width")
         #self.button_width.configure(None, 1, 0)
-        #self.button_width.set_range(1.,99.)
+        #self.button_width.set_range(1, 99)
         
         print "main..."
         self.paper.grab_focus()
 
         gtk.main()
 
+    def on_brush_solid_color_toggle(self, widget):
+        self.paper.brush.solid_color = widget.get_active()
     
     def set_zoom(self, z):
         #print "set_zoom"

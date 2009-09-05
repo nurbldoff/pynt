@@ -101,9 +101,10 @@ class PyntBrush(PyntImage):
         else:
             self.data = data
             self.custom_brush=True
-
+        
         self.size = self.data.size
         self.set_transp_color(transp_color)
+        self.solid_color = False
 
     def make_elliptic_brush(self, size, color, bgcolor):
         brush=Image.new("P", (size[0]+1, size[1]+1), bgcolor)

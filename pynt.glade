@@ -233,6 +233,14 @@
                         <signal name="activate" handler="on_menu_brush_rotate_minus90"/>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkCheckMenuItem" id="menu_brush_solid_color">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Solid color</property>
+                        <property name="use_underline">True</property>
+                        <signal name="toggled" handler="on_brush_solid_color_toggle"/>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>
@@ -412,11 +420,13 @@
                 <child>
                   <widget class="GtkSpinButton" id="button_width">
                     <property name="visible">True</property>
-                    <property name="max_length">2</property>
+                    <property name="editable">False</property>
                     <property name="invisible_char">&#x25CF;</property>
                     <property name="width_chars">2</property>
+                    <property name="adjustment">1 1 99 1 10 10</property>
                     <property name="climb_rate">1</property>
                     <property name="numeric">True</property>
+                    <property name="update_policy">if-valid</property>
                     <signal name="value_changed" handler="on_button_width_value_changed"/>
                   </widget>
                   <packing>
