@@ -7,7 +7,8 @@ try:
     from gtk import gdk
 except:
     raise SystemExit
-	
+
+from gtk.gdk import CONTROL_MASK, SHIFT_MASK
 
 import pygtk
 if gtk.pygtk_version < (2, 0):
@@ -198,16 +199,16 @@ class PyntPaper(gtk.DrawingArea):
         self.dx, self.dy = dx, dy
 
 
+ 
+#    def do_key_press_event(self, e):
+#        self.keys_pressed.append(gtk.gdk.keyval_name(e.keyval))
+#        print "keys_pressed:", self.keys_pressed
 
-    def do_key_press_event(self, e):
-        self.keys_pressed.append(gtk.gdk.keyval_name(e.keyval))
-        print "keys_pressed:", self.keys_pressed
-
-    def do_key_release_event(self, e):
-        key = gtk.gdk.keyval_name(e.keyval)
-        if key in self.keys_pressed:
-            self.keys_pressed.remove(key)
-            print "keys_pressed:", self.keys_pressed
+#    def do_key_release_event(self, e):
+#        key = gtk.gdk.keyval_name(e.keyval)
+#        if key in self.keys_pressed:
+#            self.keys_pressed.remove(key)
+#            print "keys_pressed:", self.keys_pressed
 
     def do_motion_notify_event(self, e):
         x, y = int(e.x), int(e.y)
@@ -225,7 +226,7 @@ class PyntPaper(gtk.DrawingArea):
                 self.emit("coords-changed", self.get_img_coord(x, y)) 
                 self.lx, self.ly = x, y
         else:
-            if "Control_L" in self.keys_pressed:  #scroll image
+            if e.state & CONTROL_MASK:  #scroll image
                 sx = self.lx - x
                 sy = self.ly - y
                 w, h = self.window.get_size()
@@ -244,6 +245,8 @@ class PyntPaper(gtk.DrawingArea):
                     color = self.stack.palette.fgcolor
                 elif self.stack.mode == "draw_bg":
                     color = self.stack.palette.bgcolor
+                
+                filled = e.state & SHIFT_MASK
 
                 if self.tool == "pencil":
                     #if self.lx is not None and self.ly is not None:
@@ -260,11 +263,11 @@ class PyntPaper(gtk.DrawingArea):
                     self.emit("coords-changed", self.get_img_coord(x-self.lx, y-self.ly)) 
                 elif self.tool in ("rectangle", "brush"):
                     self.draw_rectangle(color, (self.lx, self.ly, x-self.lx, y-self.ly), 
-                                        transient=True)
+                                        transient=True, filled=filled)
                     self.emit("coords-changed", self.get_img_coord(x-self.lx, y-self.ly)) 
                 elif self.tool == "ellipse":
                     self.draw_ellipse(color, (self.lx, self.ly, x-self.lx, y-self.ly), 
-                                      transient=True)
+                                      transient=True, filled=filled)
                     self.emit("coords-changed", self.get_img_coord(x-self.lx, y-self.ly)) 
                 
                 
@@ -383,28 +386,26 @@ class PyntPaper(gtk.DrawingArea):
                     self.invalidate_img_bbox(tmp)
                 self.invalidate_img_bbox((x-w//2, y-h//2, x+w//2+1, y+h//2+1))
 
-    def draw_rectangle(self, color, rect, transient=False):
+    def draw_rectangle(self, color, rect, transient=False, filled=False):
         x, y, w, h = rect 
         if x+h<self.get_xlim() and y+h<self.get_ylim():            
             startx, starty = self.get_img_coord(x, y)
             endx, endy = self.get_img_coord(x+w, y+h) 
-            if "Shift_L" in self.keys_pressed:
+            if filled:
                 fill=color
-                print "filling"
             else:
                 fill=None
             coords = self.stack.draw_rect(color, (startx, starty, endx, endy), fill, transient)
             if coords is not None:
                 self.invalidate_img_bbox(coords)
 
-    def draw_ellipse(self, color, rect, transient=False):
+    def draw_ellipse(self, color, rect, transient=False, filled=False):
         x, y, w, h = rect 
         if x+h<self.get_xlim() and y+h<self.get_ylim():            
             startx, starty = self.get_img_coord(x, y)
             endx, endy = self.get_img_coord(x+w, y+h)
-            if "Shift_L" in self.keys_pressed:
+            if filled:
                 fill=color
-                print "filling"
             else:
                 fill=None
             coords = self.stack.draw_ellipse(color, (startx, starty, endx, endy), fill, transient)
