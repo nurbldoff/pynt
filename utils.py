@@ -1,9 +1,9 @@
 import Image, gtk
 
+
 def floodfill(image, xy, value, border=None):
     """Fill bounded region. """
     # This function is from PIL, but modified to return a bit mask too."
-    # based on an implementation by Eric S. Raymond
 
     mask = Image.new("L", image.size, 0)
     mask_pixel = mask.load()
@@ -78,7 +78,7 @@ def file_browse(dialog_action, file_name="", file_ext="pynt"):
 	"""set the filename if we are saving"""
 	if (dialog_action==gtk.FILE_CHOOSER_ACTION_SAVE):
 		file_dialog.set_current_name(file_name)
-	"""Create and add the pywine filter"""
+	"""Create and add the pynt filter"""
 	filter = gtk.FileFilter()
 	filter.set_name("Pynt project")
 	filter.add_pattern("*." + file_ext)
@@ -88,6 +88,12 @@ def file_browse(dialog_action, file_name="", file_ext="pynt"):
 	filter.set_name("All files")
 	filter.add_pattern("*")
 	file_dialog.add_filter(filter)
+	"""Create and add the 'all image files' filter"""
+	filter = gtk.FileFilter()
+	filter.set_name("All image files")
+	filter.add_pattern("*.png")
+	file_dialog.add_filter(filter)
+
 
 	"""Init the return value"""
 	result = ""

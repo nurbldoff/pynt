@@ -640,7 +640,7 @@ class PyntMain(object):
     def on_save_image(self, widget):
         """Save current image as a Pynt file (pickled python object)"""
         if self.save_file is None:
-            self.on_save_image_as(self, widget)
+            self.on_save_image_as(widget)
         else:
             pyntdata = PyntData(self.stack)
             pyntdata.save(self.save_file)
