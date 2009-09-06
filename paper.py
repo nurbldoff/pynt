@@ -132,7 +132,6 @@ class PyntPaper(gtk.DrawingArea):
         #print "expose!", "x:", x, "y:", y, "w:", w, "h:", h
 
         self.update_pixmap((x, y, x+(w//z+1)*z, y+(h//z+1)*z))
-        print "update_pixmap:", (x, y, x+(w//z+(z-1))*z, y+(h//z+(z-1))*z)
         self.window.begin_paint_rect((x,y,w,h))
         self.window.draw_drawable(self.gc, self.pixmap, x, y, x, y, w, h)      
 
@@ -513,6 +512,9 @@ class PyntPaper(gtk.DrawingArea):
             if yvalue < 0:
                 yvalue = 0
 
+            self.stack.clear_scratch()
+            self.pixmap.draw_rectangle(self.gc, True, 0, 0, w, h)
+
             print "xvalue, yvalue:", xvalue, yvalue
 
             self._hadj.set_all(value=xvalue,
@@ -527,14 +529,13 @@ class PyntPaper(gtk.DrawingArea):
                                page_size=h)
 
             #update the view
-            self.stack.clear_scratch()
             w, h = int(round(self._hadj.page_size)), int(round(self._vadj.page_size))
             self.window.invalidate_rect((0, 0, w, h), False)
 
             self.zoom = zoom
             #self._hadj.upper = self.stack.resolution[0]*self.zoom
             #self._vadj.upper = self.stack.resolution[1]*self.zoom
-            self.pixmap.draw_rectangle(self.gc, True, 0, 0, w, h)
+            
             #self.stack.clear_scratch()
             #self.window.invalidate_rect((0, 0, w, h), False)            
             #self.set_adjustments(self.get_img_coord(
