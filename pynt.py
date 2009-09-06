@@ -27,14 +27,13 @@ import Image, ImageDraw, ImageChops
 import random, math
 import cPickle
 import os
-import zlib
 
 #from gui import build_gui
 from image import PyntImage, PyntBrush, PyntImagePalette
 from stack import PyntStack, PyntLayer
 from palette import PyntPalette, PyntPaletteView
 from paper import PyntPaper
-from utils import floodfill, file_browse, make_bbox, combine_bbox
+from utils import file_browse, make_bbox, combine_bbox
 from format import PyntData
 
 
