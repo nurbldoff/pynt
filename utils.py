@@ -1,6 +1,40 @@
 import Image, gtk
 
 
+def enable_devices():
+    for device in gtk.gdk.devices_list():
+        if gtk.gdk.AXIS_PRESSURE in [a[0] for a in device.axes]:
+            device.set_mode(gtk.gdk.MODE_SCREEN)
+            print "Enabled device"
+
+def get_pressure(event_data):
+    for x in event_data.device.axes :
+        print "hoj"
+        print x[0]
+        if(x[0] == gtk.gdk.AXIS_PRESSURE) :
+            pressure = event_data.get_axis(gtk.gdk.AXIS_PRESSURE)
+            if not pressure :
+                return 0
+            print pressure
+            return pressure
+    return 1
+
+
+def get_tilt(event_data):
+    xtilt=ytilt=False
+    for x in event_data.device.axes :
+        if(x[0] == gtk.gdk.AXIS_XTILT) :
+            xtilt = event_data.get_axis(gtk.gdk.AXIS_XTILT)
+        elif(x[0] == gtk.gdk.AXIS_YTILT) :
+            ytilt = event_data.get_axis(gtk.gdk.AXIS_YTILT)
+        if xtilt and ytilt:
+            return (xtilt, ytilt)
+        else:
+            return 0
+    return 1
+
+
+
 def floodfill(image, xy, value, border=None):
     """Fill bounded region. """
     # This function is from PIL, but modified to return a bit mask too."

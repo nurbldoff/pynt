@@ -8,7 +8,7 @@ try:
 except:
     raise SystemExit
 
-from gtk.gdk import CONTROL_MASK, SHIFT_MASK
+from gtk.gdk import CONTROL_MASK, SHIFT_MASK, BUTTON1_MASK, BUTTON2_MASK, BUTTON3_MASK
 
 import pygtk
 if gtk.pygtk_version < (2, 0):
@@ -18,7 +18,7 @@ if gtk.pygtk_version < (2, 0):
 import Image
 
 from image import PyntImage, PyntBrush, PyntImagePalette
-from utils import make_bbox, combine_bbox
+from utils import make_bbox, combine_bbox, enable_devices, get_pressure
 
 class PyntPaper(gtk.DrawingArea):
     __gsignals__ = {
@@ -67,13 +67,15 @@ class PyntPaper(gtk.DrawingArea):
             height=self.allocation.height,
             window_type=gdk.WINDOW_CHILD,
             wclass=gdk.INPUT_OUTPUT,
-            event_mask = self.get_events() | gtk.gdk.EXPOSURE_MASK | gtk.gdk.CONFIGURE
+            event_mask = self.get_events() | gtk.gdk.BUTTON_MOTION_MASK 
+                        | gtk.gdk.EXPOSURE_MASK | gtk.gdk.CONFIGURE
                         | gtk.gdk.BUTTON1_MOTION_MASK | gtk.gdk.BUTTON_PRESS_MASK
                         | gtk.gdk.BUTTON_RELEASE_MASK | gtk.gdk.POINTER_MOTION_MASK
                         | gtk.gdk.POINTER_MOTION_HINT_MASK | gtk.gdk.LEAVE_NOTIFY_MASK
                         | gtk.gdk.KEY_PRESS | gtk.gdk.KEY_RELEASE) 
 
         self.set_flags(gtk.CAN_FOCUS)
+        self.set_extension_events(gtk.gdk.EXTENSION_EVENTS_CURSOR)  #for pressure
 
         self.window.set_user_data(self)
         self.style.attach(self.window)
@@ -88,8 +90,8 @@ class PyntPaper(gtk.DrawingArea):
         #print "paper w, h:", w, h
         
         self.pixmap = gtk.gdk.Pixmap(None, w, h, 24)
-
-        self.gc = self.style.fg_gc[gtk.STATE_NORMAL]        
+        self.gc = self.style.fg_gc[gtk.STATE_NORMAL]
+        enable_devices()
 
     def do_unrealize(self):
         # The do_unrealized method is responsible for freeing the GDK resources
@@ -151,7 +153,7 @@ class PyntPaper(gtk.DrawingArea):
 
     def on_scroll_value_changed(self, e):
         """Called whenever a scrollbar is moved by the user."""
-        print "scrolled!", self._hadj.get_value(), self._vadj.get_value()
+        #print "scrolled!", self._hadj.get_value(), self._vadj.get_value()
         w, h = self.window.get_size()
         #self.update_pixmap((0, 0, w, h))
         x, y = int(round(self._hadj.value)), int(round(self._vadj.value))
@@ -194,7 +196,7 @@ class PyntPaper(gtk.DrawingArea):
 
         self.stack.clear_scratch()
         self.window.invalidate_rect((0, 0, w, h), False)
-        print "dx, dy:", self.dx, self.dy
+        #print "dx, dy:", self.dx, self.dy
         self.dx, self.dy = dx, dy
 
 
@@ -209,11 +211,11 @@ class PyntPaper(gtk.DrawingArea):
 #            self.keys_pressed.remove(key)
 #            print "keys_pressed:", self.keys_pressed
 
-    def do_motion_notify_event(self, e):
+    def do_motion_notify_event(self, e, f=None):
         x, y = int(e.x), int(e.y)
         xi, yi = self.get_img_coord(x, y)
         if (xi, yi) == self.get_img_coord(self.lx, self.ly):
-                print "no movement"
+                #print "no movement"
                 return None
         #a, b, state = e.window.get_pointer()
         #if all((xi >= 0, xi < self.stack.resolution[0], y >= 0, y < self.stack.resolution[1])):
@@ -240,19 +242,27 @@ class PyntPaper(gtk.DrawingArea):
                 self.ly = y
             else:
 
-                if self.stack.mode in ("draw_fg", "erase"):
+
+                #if self.stack.mode in ("draw_fg", "erase"):
+                if e.state & BUTTON1_MASK:
                     color = self.stack.palette.fgcolor
-                elif self.stack.mode == "draw_bg":
-                    color = self.stack.palette.bgcolor
-                
+                elif e.state & BUTTON2_MASK:
+                    color = 0
+                elif e.state & BUTTON3_MASK:
+                    if self.stack.palette.bgcolor == 0:
+                        color = 1
+                    else:
+                        color = self.stack.palette.bgcolor
+
                 filled = e.state & SHIFT_MASK
 
                 if self.tool == "pencil":
                     #if self.lx is not None and self.ly is not None:
-                        self.draw_line(color, self.line_width, (self.lx, self.ly, x, y))
-                        self.draw_brush(self.brush, color, (x, y), update=False)
-                        self.lx, self.ly = x, y
-                        self.emit("coords-changed", self.get_img_coord(x, y)) 
+                    p = get_pressure(e)
+                    self.draw_line(color, 1+p*self.line_width, (self.lx, self.ly, x, y))
+                    #self.draw_brush(self.brush, color, (x, y), update=False)
+                    self.lx, self.ly = x, y
+                    self.emit("coords-changed", self.get_img_coord(x, y)) 
                 elif self.tool == "points":
                     self.draw_brush(self.brush, color, (x, y), transient=False)
                     self.emit("coords-changed", self.get_img_coord(x, y)) 
@@ -286,7 +296,7 @@ class PyntPaper(gtk.DrawingArea):
 
                 
     def do_button_press_event(self, e):
-        print "button press!"
+        print "button press!", e.button
         self.grab_focus()
         #self.stack.draw_line(1, 1, (e.x, e.y, e.x+1, e.y+1))
         self.lx = int(e.x)
@@ -294,13 +304,14 @@ class PyntPaper(gtk.DrawingArea):
         if e.button == 1:
             if self.tool == "colorpicker":
                 self.pick_fgcolor((self.lx, self.ly))
-            self.stack.mode="draw_fg"
+            elif self.stack.mode is None:
+                self.stack.mode="draw_fg"
         elif e.button == 3:
             if self.tool == "colorpicker":
                 self.pick_bgcolor((self.lx, self.ly))
             elif self.stack.palette.bgcolor == 0:
                 self.stack.mode="erase"
-            else:
+            elif self.stack.mode is None:
                 self.stack.mode="draw_bg"
         self.stack.last_brush_bbox = None
 
@@ -478,7 +489,7 @@ class PyntPaper(gtk.DrawingArea):
         self.window.invalidate_rect((x0, y0, x1-x0, y1-y0), False)
 
     def invalidate_img_bbox(self, bbox):
-        print "invalidate_img_bbox():", self.get_paper_bbox(bbox)
+        #print "invalidate_img_bbox():", self.get_paper_bbox(bbox)
         self.invalidate_bbox(self.get_paper_bbox(bbox))
 
     def invalidate(self):
@@ -546,7 +557,7 @@ class PyntPaper(gtk.DrawingArea):
             
     def update_pixmap(self, bbox):
         wtot, htot = self.stack.resolution[0]*self.zoom, self.stack.resolution[1]*self.zoom
-        print "update_pixmap:", bbox
+        #print "update_pixmap:", bbox
         
         x0, y0, x1, y1 = bbox
         x0 = max(0, x0)
@@ -561,7 +572,7 @@ class PyntPaper(gtk.DrawingArea):
         #w, h = min((wtot-x0)*z, ((x1-x0)//z)*z), min((htot-y0), ((y1-y0)//z)*z)
         #w, h = int(self.zoom*((x1-x0)/self.zoom+0.5)), int(self.zoom*((y1-y0)/self.zoom+0.5))
 
-        print "updating pixmap:", w, h
+        #print "updating pixmap:", w, h
         
         if self.zoom != 1:
             img_bbox = self.get_img_bbox((x0, y0, x0+w, y0+h)) 

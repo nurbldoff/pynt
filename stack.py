@@ -268,11 +268,13 @@ class PyntStack(object):
         if not transient:
             self.scratch.image.draw_line(color, width, points)
             bbox = make_bbox(points)
-            return (bbox[0]-width, bbox[1]-width, bbox[2]+width, bbox[3]+width)
+            w = round(width+0.5)
+            return (bbox[0]-w, bbox[1]-w, bbox[2]+w, bbox[3]+w)
         else:
             old_bbox = self.last_rect_bbox
             bbox = make_bbox(points)
-            bbox = (bbox[0]-width, bbox[1]-width, bbox[2]+width, bbox[3]+width)
+            w = round(width+0.5)
+            bbox = (bbox[0]-w, bbox[1]-w, bbox[2]+w, bbox[3]+w)
             if old_bbox is not None:
                 self.scratch.image.erase(old_bbox)
                 total_bbox = combine_bbox(old_bbox, bbox)
