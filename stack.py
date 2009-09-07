@@ -389,10 +389,10 @@ class PyntStack(object):
                                     self.get_layer())
             self.changes.append(new_change)
             cropped_scratch = self.scratch.image.crop(scratch_bbox)
-            if self.mode in ("draw_fg", "draw_bg"):
-                l.image.paste(cropped_scratch, scratch_bbox, mask=l.image.make_mask(cropped_scratch))
-            elif self.mode == "erase":
+            if self.mode == "erase":
                 l.image.erase(scratch_bbox, mask=l.image.make_mask(cropped_scratch))
+            else:
+                l.image.paste(cropped_scratch, scratch_bbox, mask=l.image.make_mask(cropped_scratch))
             self.scratch.image.erase(scratch_bbox)
             if len(self.changes) > 10:
                 del(self.changes[0])

@@ -241,12 +241,12 @@ class PyntPaper(gtk.DrawingArea):
                 self.ly = y
             else:
 
-
                 #if self.stack.mode in ("draw_fg", "erase"):
-                if e.state & BUTTON1_MASK:
-                    color = self.stack.palette.fgcolor
-                elif e.state & BUTTON2_MASK:
+                if e.state & BUTTON2_MASK or e.device.source == gtk.gdk.SOURCE_ERASER:
+                    self.stack.mode="erase"
                     color = 0
+                elif e.state & BUTTON1_MASK:
+                    color = self.stack.palette.fgcolor
                 elif e.state & BUTTON3_MASK:
                     if self.stack.palette.bgcolor == 0:
                         color = 1
@@ -258,7 +258,10 @@ class PyntPaper(gtk.DrawingArea):
                 if self.tool == "pencil":
                     #if self.lx is not None and self.ly is not None:
                     p = get_pressure(e)
-                    self.draw_line(color, 1+p*self.line_width, (self.lx, self.ly, x, y))
+                    if type(p) == float:
+                        self.draw_line(color, 1+p*self.line_width, (self.lx, self.ly, x, y))
+                    else:
+                        self.draw_line(color, self.line_width, (self.lx, self.ly, x, y))
                     #self.draw_brush(self.brush, color, (x, y), update=False)
                     self.lx, self.ly = x, y
                     self.emit("coords-changed", self.get_img_coord(x, y)) 
@@ -312,6 +315,10 @@ class PyntPaper(gtk.DrawingArea):
                 self.stack.mode="erase"
             elif self.stack.mode is None:
                 self.stack.mode="draw_bg"
+        elif e.button == 4:
+            self.set_zoom(self.zoom-1)
+        elif e.button == 4:
+            self.set_zoom(self.zoom+1)
         self.stack.last_brush_bbox = None
 
 

@@ -9,12 +9,10 @@ def enable_devices():
 
 def get_pressure(event_data):
     for x in event_data.device.axes :
-        print "hoj"
-        print x[0]
         if(x[0] == gtk.gdk.AXIS_PRESSURE) :
             pressure = event_data.get_axis(gtk.gdk.AXIS_PRESSURE)
             if not pressure :
-                return 0
+                return 1
             print pressure
             return pressure
     return 1
