@@ -10,7 +10,6 @@ except:
 
 from gtk.gdk import CONTROL_MASK, SHIFT_MASK, BUTTON1_MASK, BUTTON2_MASK, BUTTON3_MASK
 
-import pygtk
 if gtk.pygtk_version < (2, 0):
     print "PyGtk 2.0 or later required for this widget"
     raise SystemExit
@@ -227,7 +226,7 @@ class PyntPaper(gtk.DrawingArea):
                 self.emit("coords-changed", self.get_img_coord(x, y)) 
                 self.lx, self.ly = x, y
         else:
-            if e.state & CONTROL_MASK:  #scroll image
+            if e.state & gdk.CONTROL_MASK:  #scroll image
                 sx = self.lx - x
                 sy = self.ly - y
                 w, h = self.window.get_size()
@@ -500,7 +499,7 @@ class PyntPaper(gtk.DrawingArea):
 
         print "zoomin'...", 
 
-        if zoom >= 1:  #zooming to less than 1 is flaky...
+        if zoom >= 1 and zoom <= 256:  #zooming to less than 1 is flaky...
 
             w, h = self.window.get_size()
             x, y, state = self.window.get_pointer()
@@ -579,11 +578,11 @@ class PyntPaper(gtk.DrawingArea):
         else:
             img_bbox = (x0+dx, y0+dy, x0+w+dx, y0+h+dy)
 
-        if self.zoom < 1:
-            filter = Image.ANTIALIAS
-        else:
-            filter = Image.NEAREST
-
+        #if self.zoom < 1:
+        #    filter = Image.ANTIALIAS
+        #else:
+        #    filter = Image.NEAREST
+        filter = Image.NEAREST
         imagedata = self.stack.get_area(*img_bbox).convert("RGBA").resize((w, h), filter).tostring()
         if w < x1 or h < y1:
             self.pixmap.draw_rectangle(self.gc, True, 0, 0, *self.pixmap.get_size())
@@ -593,8 +592,6 @@ class PyntPaper(gtk.DrawingArea):
                                       imagedata, rowstride=w*4)
 
         return imagedata
-
-        
 
     def get_visible_size(self):
         return self.window.get_size()
