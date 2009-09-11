@@ -27,9 +27,12 @@ class PyntImage(object):
             sy = 0.5*((dy > 0 and 2) - 1)
             if l > 0:
                 dyn, dxn = int(((dx/l)*width/2+sx)), -int(((dy/l)*width/2+sy))
-                self.draw.polygon(((x0-dxn,y0-dyn), (x0+dxn,y0+dyn), 
-                                   (x1+dxn,y1+dyn), (x1-dxn,y1-dyn)), fill=color)
-
+                poly = ((x0-dxn,y0-dyn), (x0+dxn,y0+dyn), 
+                                   (x1+dxn,y1+dyn), (x1-dxn,y1-dyn))
+                self.draw.polygon(poly, fill=color)
+                return poly
+            else:
+                return None
 
     def floodfill(self, color, xy):
         return floodfill(self.data, xy, color)

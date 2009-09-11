@@ -218,6 +218,7 @@ class PyntPaper(gtk.DrawingArea):
                 return None
         #a, b, state = e.window.get_pointer()
         #if all((xi >= 0, xi < self.stack.resolution[0], y >= 0, y < self.stack.resolution[1])):
+        print "Movement"
 
         if self.stack.mode is None:
             if self.tool in ("points", "pencil", "line"):
@@ -284,17 +285,18 @@ class PyntPaper(gtk.DrawingArea):
                 
 
     def do_leave_notify_event(self, event):
-        #bbox = self.label_coords.set_text("(-, -)")
-        print "leave"
-        if self.stack.mode is None:
-            bbox = self.stack.clear_scratch()
-            if bbox is not None:
-                #print "tjo!"
-                #coords = self.view.get_img_coord(int(event.x),int(event.y))
-                self.invalidate_img_bbox(bbox)
-        #else:
-            #if self.tool in ("pencil", "points"):
-                #self.lx = self.ly = None
+        """Why does this get called on mouse clicks? I sure amn't doing it..."""
+        w, h = self.window.get_size()
+        if not 0<event.x<w and not 0<event.y<h:
+            self.emit("coords-changed", (-1, -1)) 
+            print "outside!"
+            if self.stack.mode is None:
+                bbox = self.stack.clear_scratch()
+                if bbox is not None:
+                    self.invalidate_img_bbox(bbox)
+            #else:
+                #if self.tool in ("pencil", "points"):
+                    #self.lx = self.ly = None
 
                 
     def do_button_press_event(self, e):
@@ -317,7 +319,7 @@ class PyntPaper(gtk.DrawingArea):
                 self.stack.mode="draw_bg"
         elif e.button == 4:
             self.set_zoom(self.zoom-1)
-        elif e.button == 4:
+        elif e.button == 5:
             self.set_zoom(self.zoom+1)
         self.stack.last_brush_bbox = None
 
