@@ -287,7 +287,7 @@ class PyntPaper(gtk.DrawingArea):
     def do_leave_notify_event(self, event):
         """Why does this get called on mouse clicks? I sure amn't doing it..."""
         w, h = self.window.get_size()
-        if not 0<event.x<w and not 0<event.y<h:
+        if not 0<=event.x<w or not 0<=event.y<h:
             self.emit("coords-changed", (-1, -1)) 
             print "outside!"
             if self.stack.mode is None:
@@ -328,8 +328,10 @@ class PyntPaper(gtk.DrawingArea):
         print "button release!"
         if self.tool == "brush":
             #print "Getting new brush..."
-            bbox = (self.lx, self.ly, int(e.x)+1, int(e.y)+1)
-            tmp = self.stack.get_layer().image.crop(self.get_img_bbox(bbox))
+            bbox = (self.lx, self.ly, int(e.x), int(e.y))
+            tmp = self.get_img_bbox(bbox)
+            img_bbox = (tmp[0], tmp[1], tmp[2]+1, tmp[3]+1)
+            tmp = self.stack.get_layer().image.crop(img_bbox)
             self.brush = PyntBrush(data=tmp, transp_color=self.stack.get_layer().image.transp_color)
             
             #self.custom_brush = True
@@ -402,7 +404,7 @@ class PyntPaper(gtk.DrawingArea):
             if update:
                 if tmp is not None:
                     self.invalidate_img_bbox(tmp)
-                self.invalidate_img_bbox((x-w//2, y-h//2, x+w//2+1, y+h//2+1))
+                #self.invalidate_img_bbox((x-w//2, y-h//2, x+w//2+1, y+h//2+1))
 
     def draw_rectangle(self, color, rect, transient=False, filled=False):
         x, y, w, h = rect 

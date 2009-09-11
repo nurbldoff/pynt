@@ -320,19 +320,27 @@ class PyntStack(object):
     def draw_brush(self, brush, color, pos, transient=False):
         #print "drawing brush at:", pos
         #print brush
+        pos=(pos[0]+1,pos[1]+1)  #tweak to make brush end up in the right place...
         w,h = int(brush.size[0]/2), int(brush.size[1]/2)
         if self.last_brush_bbox is not None and transient:
             self.scratch.image.erase(self.last_brush_bbox)
         if color is None:
             print "no color"
-            self.scratch.image.paste(brush.data, (pos[0]-w+1, pos[1]-h+1),
+            self.scratch.image.paste(brush.data, (pos[0]-w, pos[1]-h),
                                      mask=brush.get_mask())
         else:
-            self.scratch.image.paint(color, (pos[0]-w+1, pos[1]-h+1), 
+            self.scratch.image.paint(color, (pos[0]-w, pos[1]-h), 
                                      mask=brush.get_mask())
-        last = self.last_brush_bbox
-        self.last_brush_bbox = ((pos[0]-w+1, pos[1]-h+1, pos[0]+w+2, pos[1]+h+2))
-        return last #combine_bbox(last, bbox)
+        if self.last_brush_bbox is None:
+            new = ((pos[0]-w, pos[1]-h, pos[0]+w+1, pos[1]+h+1))
+            self.last_brush_bbox = new
+            return new
+        else:
+            new = ((pos[0]-w, pos[1]-h, pos[0]+w+1, pos[1]+h+1))
+            last = self.last_brush_bbox
+            self.last_brush_bbox = new
+            return combine_bbox(new, last)
+
 
     def erase_last_brush(self, brush):
         w,h = brush.size
