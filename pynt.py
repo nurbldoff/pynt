@@ -66,7 +66,8 @@ class PyntMain(object):
         self.mainTree = gtk.glade.XML(self.gladefile, "mainwindow")
         self.peTree = gtk.glade.XML(self.gladefile, "palette_editor")
         
-
+        #self.mainwindow = self.mainTree.get_widget("mainwindow")
+        
         #self.mainTree = self.builder
 
 
@@ -83,6 +84,7 @@ class PyntMain(object):
         self.paper.connect("fgcolor-picked", self.set_fgcolor)
         self.paper.connect("bgcolor-picked", self.set_bgcolor)
         self.paper.connect("coords-changed", self.set_coords)
+        self.paper.connect("set-tool", lambda w, t: self.set_tool(t))
         
         #self.set_width(1)
         self.paper.show()
@@ -377,6 +379,12 @@ class PyntMain(object):
             self.menu_animated.set_active(False)
         self.menu_animated.handler_unblock_by_func(self.toggle_frame)
 
+    def update_window_title(self):
+        if self.save_file is None:
+            self.mainwindow.set_title("Pynt: <Unsaved>")
+        else:
+            self.mainwindow.set_title("Pynt: "+self.save_file)
+
     def toggle_visible(self, widget):
         #print "Visibility:", self.stack.get_layer().visible
         self.stack.get_layer().visible = not self.stack.get_layer().visible
@@ -653,14 +661,16 @@ class PyntMain(object):
                 save_file += ".pynt"
             pyntdata = PyntData(self.stack)
             pyntdata.save(save_file)
-            self.save_file = save_file
 
+            self.save_file = save_file
+            self.update_window_title()
 
     def on_load_image(self, widget):
         """Load a Pynt image file"""
         load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN, "")
         if load_file != "":
             f = open(load_file, "r")
+            self.save_file = load_file
             pyntdata = cPickle.load(f)
 
             self.stack = PyntStack(data=pyntdata)
@@ -675,6 +685,7 @@ class PyntMain(object):
 
             self.update_frame_label()
             self.update_layer_label()
+            #self.update_window_title()
       
             f.close()
 

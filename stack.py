@@ -21,9 +21,9 @@ class PyntChange(object):
 
 class PyntLayer(object):
     """An image Layer (or Frame)"""
-    def __init__(self, data=None, opacity=1.0, resolution=None, visible=True, anim=False, fillcolor=0):
+    def __init__(self, data=None, opacity=1.0, resolution=(800,600), visible=True, anim=False, fillcolor=0):
         if data is not None:
-            self.image = PyntImagePalette(data=data)
+            self.image = PyntImagePalette(resolution=resolution, data=data)
         else:
             self.image = PyntImagePalette(resolution=resolution, fillcolor=fillcolor)
             
@@ -50,7 +50,7 @@ class PyntStack(object):
 
         if data is not None:
             if isinstance(data, Image.Image):
-                self.layers.append(PyntLayer(data=data))
+                self.layers.append(PyntLayer(resolution, data=data))
             else:
                 self.layers = []
                 for l in data.layers:

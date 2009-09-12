@@ -33,6 +33,9 @@ class PyntPaper(gtk.DrawingArea):
        "bgcolor-picked": (
             gobject.SIGNAL_RUN_LAST,
             gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),                        
+       "set-tool": (
+            gobject.SIGNAL_RUN_LAST,
+            gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),                        
        }
 
     def __init__(self, stack):
@@ -47,6 +50,8 @@ class PyntPaper(gtk.DrawingArea):
 
         self.dx = self.dy = 0          #scrollbar offsets
         self.lx = self.ly = 0       #last mouse point (for drawing)
+
+        self.selection = None
 
         self.keys_pressed = []
 
@@ -220,42 +225,45 @@ class PyntPaper(gtk.DrawingArea):
         #if all((xi >= 0, xi < self.stack.resolution[0], y >= 0, y < self.stack.resolution[1])):
         print "Movement"
 
-        if self.stack.mode is None:
-            if self.tool in ("points", "pencil", "line"):
+        
+        if e.state & gdk.CONTROL_MASK:  #scroll image
+            sx = self.lx - x
+            sy = self.ly - y
+            w, h = self.window.get_size()
+
+            self.window.freeze_updates()
+            self._hadj.value = max(0, min(self.get_xlim()-w, 
+                                          self._hadj.value + sx))
+            self._vadj.value = max(0, min(self.get_ylim()-h, 
+                                          self._vadj.value + sy))
+            self.window.thaw_updates()
+            self.lx = x
+            self.ly = y
+        else:
+            draw = False
+            #if self.stack.mode in ("draw_fg", "erase"):
+            if e.state & BUTTON2_MASK or e.device.source == gtk.gdk.SOURCE_ERASER:
+                draw=True
+                self.stack.mode="erase"
+                color = 0
+            elif e.state & BUTTON1_MASK:
+                draw=True
+                color = self.stack.palette.fgcolor
+            elif e.state & BUTTON3_MASK:
+                draw=True
+                if self.stack.palette.bgcolor == 0:
+                    color = 1
+                else:
+                    color = self.stack.palette.bgcolor
+            else:
                 self.draw_brush(self.brush, self.stack.palette.fgcolor, 
                                 (x, y), transient=True)
                 self.emit("coords-changed", self.get_img_coord(x, y)) 
-                self.lx, self.ly = x, y
-        else:
-            if e.state & gdk.CONTROL_MASK:  #scroll image
-                sx = self.lx - x
-                sy = self.ly - y
-                w, h = self.window.get_size()
+                self.lx, self.ly = x, y                
+   
+            filled = e.state & SHIFT_MASK
 
-                self.window.freeze_updates()
-                self._hadj.value = max(0, min(self.get_xlim()-w, 
-                                              self._hadj.value + sx))
-                self._vadj.value = max(0, min(self.get_ylim()-h, 
-                                              self._vadj.value + sy))
-                self.window.thaw_updates()
-                self.lx = x
-                self.ly = y
-            else:
-
-                #if self.stack.mode in ("draw_fg", "erase"):
-                if e.state & BUTTON2_MASK or e.device.source == gtk.gdk.SOURCE_ERASER:
-                    self.stack.mode="erase"
-                    color = 0
-                elif e.state & BUTTON1_MASK:
-                    color = self.stack.palette.fgcolor
-                elif e.state & BUTTON3_MASK:
-                    if self.stack.palette.bgcolor == 0:
-                        color = 1
-                    else:
-                        color = self.stack.palette.bgcolor
-
-                filled = e.state & SHIFT_MASK
-
+            if draw:
                 if self.tool == "pencil":
                     #if self.lx is not None and self.ly is not None:
                     p = get_pressure(e)
@@ -272,21 +280,28 @@ class PyntPaper(gtk.DrawingArea):
                 elif self.tool in ("line"):
                     self.draw_line(color, self.line_width, (self.lx, self.ly, x, y), 
                                    transient=True)
-                    self.emit("coords-changed", self.get_img_coord(x-self.lx, y-self.ly)) 
+                    new = self.get_img_coord(x, y)
+                    old = self.get_img_coord(self.lx, self.ly)
+                    self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1))  
                 elif self.tool in ("rectangle", "brush"):
                     self.draw_rectangle(color, (self.lx, self.ly, x-self.lx, y-self.ly), 
                                         transient=True, filled=filled)
-                    self.emit("coords-changed", self.get_img_coord(x-self.lx, y-self.ly)) 
+                    new = self.get_img_coord(x, y)
+                    old = self.get_img_coord(self.lx, self.ly)
+                    self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1)) 
                 elif self.tool == "ellipse":
                     self.draw_ellipse(color, (self.lx, self.ly, x-self.lx, y-self.ly), 
                                       transient=True, filled=filled)
-                    self.emit("coords-changed", self.get_img_coord(x-self.lx, y-self.ly)) 
-                
+                    new = self.get_img_coord(x, y)
+                    old = self.get_img_coord(self.lx, self.ly)
+                    self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1)) 
                 
 
     def do_leave_notify_event(self, event):
         """Why does this get called on mouse clicks? I sure amn't doing it..."""
         w, h = self.window.get_size()
+        w = min(w, self.stack.resolution[0]*self.zoom)
+        h = min(h, self.stack.resolution[1]*self.zoom)
         if not 0<=event.x<w or not 0<=event.y<h:
             self.emit("coords-changed", (-1, -1)) 
             print "outside!"
@@ -337,6 +352,7 @@ class PyntPaper(gtk.DrawingArea):
             #self.custom_brush = True
             bbox = self.stack.clear_scratch()
             self.invalidate_img_bbox(bbox)
+            self.emit("set-tool", "points")
             #self.set_tool("points")
         elif self.tool == "floodfill":
             

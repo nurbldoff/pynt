@@ -131,7 +131,7 @@ class PyntBrush(PyntImage):
     
 class PyntImagePalette(PyntImage):
     """Palette based image"""
-    def __init__(self, resolution=(640,480), fillcolor=0, data=None):
+    def __init__(self, resolution=(800,600), fillcolor=0, data=None):
         self.resolution = resolution
         if data is None:
             self.data = Image.new("P", resolution, fillcolor)
