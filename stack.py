@@ -50,7 +50,7 @@ class PyntStack(object):
 
         if data is not None:
             if isinstance(data, Image.Image):
-                self.layers.append(PyntLayer(resolution, data=data))
+                self.layers.append(PyntLayer(data=data, resolution=resolution))
             else:
                 self.layers = []
                 for l in data.layers:
@@ -257,7 +257,7 @@ class PyntStack(object):
                         #print "erasing"
                         mask.paste(layer.image.transp_color, mask=layer.image.make_mask(scratch_area))
                         area.paste(next_area, mask=layer.image.make_mask(mask))
-                    elif self.mode in ("draw_fg", "draw_bg", None):
+                    else:   #if self.mode in ("draw_fg", "draw_bg", None):
                         area.paste(next_area, mask=layer.image.make_mask(next_area))
                         area.paste(scratch_area, mask=layer.image.make_mask(scratch_area))
                 elif not layer.anim:

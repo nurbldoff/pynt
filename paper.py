@@ -61,7 +61,7 @@ class PyntPaper(gtk.DrawingArea):
 # --- GUI callbacks ---
 
     def do_realize(self):
-        #print "realize!"
+        print "realize!"
 
         self.set_flags(self.flags() | gtk.REALIZED)
 
@@ -119,14 +119,14 @@ class PyntPaper(gtk.DrawingArea):
         self.allocation = allocation. The following code is
         identical to the widget.py example"""
         
+        print "do_size_allocate()"
+
         if self.flags() & gtk.REALIZED:
             self.window.move_resize(*allocation)
         #print "resizing:", allocation.width, allocation.height
         self.pixmap = gtk.gdk.Pixmap(None, allocation.width, allocation.height, 24)
-        self._hadj.page_size = allocation.width
-        self._vadj.page_size = allocation.height
 
-        self._hadj.upper, self._vadj.upper = self.stack.resolution
+        self.set_zoom(self.zoom)
 
     def do_expose_event(self, e):
 
@@ -226,44 +226,40 @@ class PyntPaper(gtk.DrawingArea):
         print "Movement"
 
         
-        if e.state & gdk.CONTROL_MASK:  #scroll image
-            sx = self.lx - x
-            sy = self.ly - y
-            w, h = self.window.get_size()
+        draw = False
+        #if self.stack.mode in ("draw_fg", "erase"):
+        if e.state & BUTTON2_MASK or e.device.source == gtk.gdk.SOURCE_ERASER:
+                sx = self.lx - x
+                sy = self.ly - y
+                w, h = self.window.get_size()
+                
+                self.window.freeze_updates()
+                self._hadj.value = max(0, min(self.get_xlim()-w, 
+                                              self._hadj.value + sx))
+                self._vadj.value = max(0, min(self.get_ylim()-h, 
+                                              self._vadj.value + sy))
+                self.window.thaw_updates()
+                self.lx = x
+                self.ly = y     
 
-            self.window.freeze_updates()
-            self._hadj.value = max(0, min(self.get_xlim()-w, 
-                                          self._hadj.value + sx))
-            self._vadj.value = max(0, min(self.get_ylim()-h, 
-                                          self._vadj.value + sy))
-            self.window.thaw_updates()
-            self.lx = x
-            self.ly = y
-        else:
-            draw = False
-            #if self.stack.mode in ("draw_fg", "erase"):
-            if e.state & BUTTON2_MASK or e.device.source == gtk.gdk.SOURCE_ERASER:
-                draw=True
-                self.stack.mode="erase"
-                color = 0
-            elif e.state & BUTTON1_MASK:
-                draw=True
-                color = self.stack.palette.fgcolor
-            elif e.state & BUTTON3_MASK:
-                draw=True
-                if self.stack.palette.bgcolor == 0:
-                    color = 1
-                else:
-                    color = self.stack.palette.bgcolor
+        elif e.state & BUTTON1_MASK:
+            draw=True
+            color = self.stack.palette.fgcolor
+        elif e.state & BUTTON3_MASK:
+            draw=True
+            if self.stack.palette.bgcolor == 0:
+                color = 1
             else:
-                self.draw_brush(self.brush, self.stack.palette.fgcolor, 
-                                (x, y), transient=True)
-                self.emit("coords-changed", self.get_img_coord(x, y)) 
-                self.lx, self.ly = x, y                
+                color = self.stack.palette.bgcolor
+        else:
+            self.draw_brush(self.brush, self.stack.palette.fgcolor, 
+                            (x, y), transient=True)
+            self.emit("coords-changed", self.get_img_coord(x, y)) 
+            self.lx, self.ly = x, y                
    
-            filled = e.state & SHIFT_MASK
+        filled = e.state & SHIFT_MASK
 
-            if draw:
+        if draw:
                 if self.tool == "pencil":
                     #if self.lx is not None and self.ly is not None:
                     p = get_pressure(e)
