@@ -53,7 +53,7 @@ class PyntPaper(gtk.DrawingArea):
 
         self.selection = None
 
-        self.keys_pressed = []
+        #self.keys_pressed = []
 
         #this is needed to make PyntPaper aware of the scrollbars
         self.set_set_scroll_adjustments_signal("set-scroll-adjustments")        
@@ -103,23 +103,11 @@ class PyntPaper(gtk.DrawingArea):
         self.window.destroy()
 		
     def do_size_request(self, requisition):
-        """From Widget.py: The do_size_request method Gtk+ is calling
-        on a widget to ask it the widget how large it wishes to be. 
-        It's not guaranteed that gtk+ will actually give this size 
-        to the widget.  So we will send gtk+ the size needed for
-        the maximum amount of stars"""
-        
         requisition.height = -1 #10*self.columns
         requisition.width = -1 #20 * (len(self.colors) // self.columns)	
 	
     def do_size_allocate(self, allocation):
-        """The do_size_allocate is called by when the actual 
-        size is known and the widget is told how much space 
-        could actually be allocated Save the allocated space
-        self.allocation = allocation. The following code is
-        identical to the widget.py example"""
-        
-        print "do_size_allocate()"
+        self.allocation=allocation
 
         if self.flags() & gtk.REALIZED:
             self.window.move_resize(*allocation)
@@ -347,7 +335,7 @@ class PyntPaper(gtk.DrawingArea):
             
             #self.custom_brush = True
             bbox = self.stack.clear_scratch()
-            self.invalidate_img_bbox(bbox)
+            #self.invalidate_img_bbox(bbox)
             self.emit("set-tool", "points")
             #self.set_tool("points")
         elif self.tool == "floodfill":
@@ -358,13 +346,15 @@ class PyntPaper(gtk.DrawingArea):
                 color = self.stack.palette.bgcolor
 
             self.floodfill(color, (int(e.x), int(e.y)))
-            self.stack.apply_scratch()
+            bbox = self.stack.apply_scratch()
         else:
-            self.stack.apply_scratch()
+            bbox = self.stack.apply_scratch()
             
         #self.lx = self.ly = None
         self.stack.mode = None
-        self.stack.clear_scratch()
+        #bbox=self.stack.clear_scratch()
+        if bbox is not None:
+            self.invalidate_img_bbox(bbox)
 
     #def do_leave_notify_event(self, e):
     #    print "leave notify!"
