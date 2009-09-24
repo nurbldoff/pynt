@@ -69,6 +69,9 @@ class PyntImage(object):
     def getpixel(self, pos):
         return self.data.getpixel(pos)
     
+    def getcolors(self):
+        return self.data.getcolors()
+    
     def getbbox(self):
         return self.data.getbbox()
 
@@ -144,12 +147,12 @@ class PyntImagePalette(PyntImage):
         self.set_transp_color(0)
 
     def set_palette(self, colors):
-        print "setting palette..."
+        #print "setting palette..."
         self.palette = colors
         if len(colors) == 256:
             colors = reduce(lambda x, y: x+y, colors)
         self.data.putpalette(colors)
-        print colors[:10]
+        #print colors[:10]
         self.draw = ImageDraw.Draw(self.data)
 
     def set_transp_color(self, n):

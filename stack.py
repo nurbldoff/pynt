@@ -88,6 +88,15 @@ class PyntStack(object):
         else:
             return self.layers[n]
 
+    def get_colors(self):
+        colors = set([])
+        for l in self.layers:
+            lcols = l.image.getcolors()
+            for n, c in lcols:
+                if not c in colors:
+                    colors.add(c)
+        return colors
+
     def clear_layer(self):
         l = self.get_layer()
         bbox = l.image.getbbox()

@@ -66,7 +66,7 @@ class PyntMain(object):
         self.mainTree = gtk.glade.XML(self.gladefile, "mainwindow")
         self.peTree = gtk.glade.XML(self.gladefile, "palette_editor")
         
-        #self.mainwindow = self.mainTree.get_widget("mainwindow")
+        self.mainwindow = self.mainTree.get_widget("mainwindow")
         
         #self.mainTree = self.builder
 
@@ -203,9 +203,9 @@ class PyntMain(object):
         #self.pe_r_adj.set_all(value=0, lower=0, upper=255, step_increment=1, page_increment=1, page_size=0)
         #self.pe_g_adj.set_all(value=0, lower=0, upper=255, step_increment=1, page_increment=1, page_size=0)
         #self.pe_b_adj.set_all(value=0, lower=0, upper=255, step_increment=1, page_increment=1, page_size=0)
-        self.pe_r_adj.connect("value-changed", self.on_pe_color_edited)
-        self.pe_g_adj.connect("value-changed", self.on_pe_color_edited)
-        self.pe_b_adj.connect("value-changed", self.on_pe_color_edited)
+        self.pe_r_handlerid = self.pe_r_adj.connect("value-changed", self.on_pe_color_edited)
+        self.pe_g_handlerid = self.pe_g_adj.connect("value-changed", self.on_pe_color_edited)
+        self.pe_b_handlerid = self.pe_b_adj.connect("value-changed", self.on_pe_color_edited)
 
         self.pe_paletteview = PyntPaletteView(palette=self.stack.palette, columns=16, pages=1)
         self.pe_paletteview.connect("color_changed", self.on_color_changed)
@@ -277,15 +277,11 @@ class PyntMain(object):
 
 
     def on_color_changed(self, widget, n):
-        print "New color:", n
-        self.stack.set_palette(self.stack.palette.get_pil_palette())
-        #bbox = self.get_visible()
-        if widget == self.paletteview:
-            self.pe_paletteview.invalidate_color(n)
-        else:
-            self.paletteview.invalidate_color(n)
+        """
+        Take care of any image updates needed when a color has been edited.
+        """
+        #print "New color:", n
 
-        self.paper.invalidate()
 
     def set_coords(self, widget, coords):
         self.label_coords.set_text("(%d, %d)"%coords)
@@ -295,13 +291,27 @@ class PyntMain(object):
         self.palette_editor.show()
 
     def on_pe_color_edited(self, widget):
-        print "skoj"
+        """
+        Update the palette views and palette upon a color edit.
+        """
+
         color = (int(self.pe_r_adj.get_value()), int(self.pe_g_adj.get_value()), int(self.pe_b_adj.get_value()))
         self.stack.palette.set_color(color)
+        self.pe_paletteview.color_edited(color)
+        #invalidate_color(self.stack.palette.fgcolor)
+
+        self.paletteview.color_edited(color)
         self.stack.set_palette(self.stack.palette.get_pil_palette())
-        self.pe_paletteview.invalidate_color(self.stack.palette.fgcolor)
-        self.paletteview.invalidate_all()  #???
-        self.paper.invalidate()
+
+        imcolors = self.stack.get_colors()
+        print "imcolors:", imcolors
+        if self.stack.palette.fgcolor in imcolors:
+            self.paper.invalidate()
+
+        #imcolors = self.stack.get_colors()
+        #print "imcolors:", imcolors
+        #if n in imcolors:
+        #    self.paper.invalidate()
 
     def on_pe_button_undo(self, widget):
         print "palette undo"
@@ -319,15 +329,22 @@ class PyntMain(object):
             if self.pe_toggle_spread.get_active():
                 if self.paper.fgcolor != n:
                     self.stack.palette.spread(self.paper.fgcolor, n)
+                    self.stack.set_palette(self.stack.palette.get_pil_palette())
                     self.pe_toggle_spread.set_active(False)
                     self.pe_paletteview.invalidate_all()
             self.paletteview.invalidate_all()
                 
         self.paper.fgcolor = n            
         r, g, b = self.stack.palette.colors[n]
+        self.pe_r_adj.handler_block(self.pe_r_handlerid)
+        self.pe_g_adj.handler_block(self.pe_g_handlerid)
+        self.pe_b_adj.handler_block(self.pe_b_handlerid)
         self.pe_r_adj.set_value(r)
         self.pe_g_adj.set_value(g)
         self.pe_b_adj.set_value(b)
+        self.pe_r_adj.handler_unblock(self.pe_r_handlerid)
+        self.pe_g_adj.handler_unblock(self.pe_g_handlerid)
+        self.pe_b_adj.handler_unblock(self.pe_b_handlerid)
 
         print "set_color:", self.stack.palette.get_color(n)
         #self.color = (col.red//255, col.green//255, col.blue//255, 255)
@@ -685,7 +702,7 @@ class PyntMain(object):
 
             self.update_frame_label()
             self.update_layer_label()
-            #self.update_window_title()
+            self.update_window_title()
       
             f.close()
 

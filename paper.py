@@ -211,7 +211,7 @@ class PyntPaper(gtk.DrawingArea):
                 return None
         #a, b, state = e.window.get_pointer()
         #if all((xi >= 0, xi < self.stack.resolution[0], y >= 0, y < self.stack.resolution[1])):
-        print "Movement"
+        #print "Movement"
 
         
         draw = False
@@ -502,7 +502,8 @@ class PyntPaper(gtk.DrawingArea):
 
     def invalidate_img_bbox(self, bbox):
         #print "invalidate_img_bbox():", self.get_paper_bbox(bbox)
-        self.invalidate_bbox(self.get_paper_bbox(bbox))
+        if not bbox is None:
+            self.invalidate_bbox(self.get_paper_bbox(bbox))
 
     def invalidate(self):
         w, h = self.window.get_size()
@@ -569,7 +570,7 @@ class PyntPaper(gtk.DrawingArea):
             
     def update_pixmap(self, bbox):
         wtot, htot = self.stack.resolution[0]*self.zoom, self.stack.resolution[1]*self.zoom
-        #print "update_pixmap:", bbox
+        print "update_pixmap:", bbox
         
         x0, y0, x1, y1 = bbox
         x0 = max(0, x0)

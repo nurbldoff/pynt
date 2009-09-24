@@ -173,12 +173,12 @@ class PyntPaletteView(gtk.DrawingArea):
                         self.invalidate_all()
                 return self.page+1
                 
-        def color_edited(self, w, n):
-                print "palette: color edited:", n
-                color = w.get_current_color()
-                self.palette.set_color((color.red//255, color.green//255, color.blue//255), n)
+        def color_edited(self, color):
+                n = self.palette.fgcolor
+                print "palette: color edited:", color, n
+                #self.palette.set_color(color, n)
                 self.invalidate_color(n)
-                self.emit("color_changed", n)
+                #self.emit("color_changed", n)
                  
 
 	def do_realize(self):
