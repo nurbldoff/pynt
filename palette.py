@@ -175,7 +175,7 @@ class PyntPaletteView(gtk.DrawingArea):
                 
         def color_edited(self, color):
                 n = self.palette.fgcolor
-                print "palette: color edited:", color, n
+                #print "palette: color edited:", color, n
                 #self.palette.set_color(color, n)
                 self.invalidate_color(n)
                 #self.emit("color_changed", n)
@@ -264,7 +264,7 @@ class PyntPaletteView(gtk.DrawingArea):
 		
 	def do_expose_event(self, event):
 		"""This is where the widget must draw itself."""
-		print "Drawing palettwe!!!"
+		#print "Drawing palettwe!!!"
 
                 wtot, htot = self.window.get_size()
 
@@ -274,7 +274,7 @@ class PyntPaletteView(gtk.DrawingArea):
 
                 pagesize = 256 // self.pages
 
-                print "wtot, htot:", wtot, htot
+                #print "wtot, htot:", wtot, htot
                 rows = (256//self.pages)//self.columns
                 cols = self.columns
                 w = (wtot-2)//cols
@@ -338,7 +338,7 @@ class PyntPaletteView(gtk.DrawingArea):
 			x = event.x
 			y = event.y
 			state = event.state
-		print "palette motion"
+		#print "palette motion"
 		#new_stars = 0
 		#if (state & gtk.gdk.BUTTON1_MASK):
 			# loop through the sizes and see if the
@@ -347,7 +347,7 @@ class PyntPaletteView(gtk.DrawingArea):
 			
         def invalidate_color(self, n):
                 if self.window is not None:
-                        print "invalidating", n
+                        #print "invalidating", n
                         offset = (256 // self.pages) * self.page
                         if n >= offset and n <= offset+256//self.pages:
                                 wtot, htot = self.window.get_size()
@@ -358,9 +358,9 @@ class PyntPaletteView(gtk.DrawingArea):
                                 row = (n-offset)%rows
                                 col = (n-offset)//rows
                                 self.window.invalidate_rect((col*w, row*h ,w+2, h+2), False)
-                                print "updating ciolor:", n, col*w, row*h
-                        else:
-                                print "color is off screen"
+                                #print "updating ciolor:", n, col*w, row*h
+                        #else:
+                                #print "color is off screen"
 
         def invalidate_all(self):
                 if self.window is not None:
@@ -371,7 +371,7 @@ class PyntPaletteView(gtk.DrawingArea):
 		"""The button press event virtual method"""
 				
                 wtot, htot = self.window.get_size()
-                print "wtot, htot:", wtot, htot
+                #print "wtot, htot:", wtot, htot
                 rows = (256//self.pages)//self.columns
                 cols = self.columns
                 w = (wtot-2)//cols
@@ -395,10 +395,10 @@ class PyntPaletteView(gtk.DrawingArea):
 
                                 self.emit("fgcolor_picked", n)
                         if event.button == 3:
-                                #print "old selection:", oldcol, oldrow
+                                ##print "old selection:", oldcol, oldrow
                                 self.invalidate_color(self.palette.bgcolor)
                                 self.palette.bgcolor = n
-                                print "bgcolor:", self.palette.bgcolor
+                                #print "bgcolor:", self.palette.bgcolor
                                 self.invalidate_color(n)
 
                                 self.emit("bgcolor_picked", n)

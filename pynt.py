@@ -177,7 +177,7 @@ class PyntMain(object):
         self.paletteview = PyntPaletteView(palette=self.stack.palette)
         
         self.vbox_palette.pack_start(self.paletteview)
-        self.paletteview.connect("color_changed", self.on_color_changed)
+        #self.paletteview.connect("color_changed", self.on_color_changed)
         self.paletteview.connect("fgcolor_picked", self.set_fgcolor)
         self.paletteview.connect("bgcolor_picked", self.set_bgcolor)
         self.paletteview.show()
@@ -208,7 +208,7 @@ class PyntMain(object):
         self.pe_b_handlerid = self.pe_b_adj.connect("value-changed", self.on_pe_color_edited)
 
         self.pe_paletteview = PyntPaletteView(palette=self.stack.palette, columns=16, pages=1)
-        self.pe_paletteview.connect("color_changed", self.on_color_changed)
+        #self.pe_paletteview.connect("color_changed", self.on_color_changed)
         self.pe_paletteview.connect("fgcolor_picked", self.set_fgcolor)
         self.pe_paletteview.connect("bgcolor_picked", self.set_bgcolor)
 
@@ -276,13 +276,6 @@ class PyntMain(object):
             self.vadjustment.set_value(int(vmiddle*(z/zo))-vadj_page/2)
 
 
-    def on_color_changed(self, widget, n):
-        """
-        Take care of any image updates needed when a color has been edited.
-        """
-        #print "New color:", n
-
-
     def set_coords(self, widget, coords):
         self.label_coords.set_text("(%d, %d)"%coords)
 
@@ -304,7 +297,7 @@ class PyntMain(object):
         self.stack.set_palette(self.stack.palette.get_pil_palette())
 
         imcolors = self.stack.get_colors()
-        print "imcolors:", imcolors
+        #print "imcolors:", imcolors
         if self.stack.palette.fgcolor in imcolors:
             self.paper.invalidate()
 

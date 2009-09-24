@@ -570,7 +570,7 @@ class PyntPaper(gtk.DrawingArea):
             
     def update_pixmap(self, bbox):
         wtot, htot = self.stack.resolution[0]*self.zoom, self.stack.resolution[1]*self.zoom
-        print "update_pixmap:", bbox
+        #print "update_pixmap:", bbox
         
         x0, y0, x1, y1 = bbox
         x0 = max(0, x0)
