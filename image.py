@@ -13,6 +13,7 @@ class PyntImage(object):
         self.draw.ellipse(bbox, outline=color, fill=fill)
 
     def draw_line(self, color, width, bbox):
+        print "draw_line"
         x0, y0, x1, y1 = bbox
         #if y1 < y0:
         #    x0, x1 = x1, x0
@@ -23,12 +24,12 @@ class PyntImage(object):
         else:
             dx, dy = x1-x0, y1-y0
             l = math.sqrt(dx**2 + dy**2)
-            sx = 0.5*((dx > 0 and 2) - 1)
-            sy = 0.5*((dy > 0 and 2) - 1)
+            sx = .5*((dx > 0 and 2) - 1)
+            sy = .5*((dy > 0 and 2) - 1)
             if l > 0:
-                dyn, dxn = int(((dx/l)*width/2+sx)), -int(((dy/l)*width/2+sy))
-                poly = ((x0-dxn,y0-dyn), (x0+dxn,y0+dyn), 
-                                   (x1+dxn,y1+dyn), (x1-dxn,y1-dyn))
+                dyn, dxn = int(((dx/l)*width/2+sx)), int(((dy/l)*width/2+sy))
+                poly = ((x0-dxn,y0+dyn), (x0+dxn,y0-dyn),
+                                   (x1+dxn,y1-dyn), (x1-dxn,y1+dyn))
                 self.draw.polygon(poly, fill=color)
                 return poly
             else:
@@ -41,7 +42,7 @@ class PyntImage(object):
         tmp = self.data.crop(bbox)
         tmp.load()
         return tmp
-    
+
     def paste(self, source, bbox=(0,0), mask = None):
         if mask is None:
             self.data.paste(source, bbox)
@@ -49,7 +50,7 @@ class PyntImage(object):
             tmp = self.make_mask(mask)
             self.data.paste(source, bbox, tmp)
 
-        
+
     def paint(self, color, bbox=(0,0), mask=None):
         if mask is None:
             self.data.paste(color, bbox)
@@ -68,10 +69,10 @@ class PyntImage(object):
 
     def getpixel(self, pos):
         return self.data.getpixel(pos)
-    
+
     def getcolors(self):
         return self.data.getcolors()
-    
+
     def getbbox(self):
         return self.data.getbbox()
 
@@ -86,7 +87,7 @@ class PyntImage(object):
             self.data = self.data.transpose(Image.FLIP_TOP_BOTTOM)
         else:
             self.data = self.data.transpose(Image.FLIP_LEFT_RIGHT)
-            
+
     def rotate(self, angle):
         self.data = self.data.rotate(angle)
         self.size = self.data.size
@@ -107,7 +108,7 @@ class PyntBrush(PyntImage):
         else:
             self.data = data
             self.custom_brush=True
-        
+
         self.size = self.data.size
         self.set_transp_color(transp_color)
         self.solid_color = False
@@ -131,14 +132,14 @@ class PyntBrush(PyntImage):
         return self.make_mask(self.data)
 
 
-    
+
 class PyntImagePalette(PyntImage):
     """Palette based image"""
     def __init__(self, resolution=(800,600), fillcolor=0, data=None):
         self.resolution = resolution
         if data is None:
             self.data = Image.new("P", resolution, fillcolor)
-            self.palette = (255,255,255, 0,0,0, 255,0,0, 0,255,0, 
+            self.palette = (255,255,255, 0,0,0, 255,0,0, 0,255,0,
                         0,0,255, 255,255,0, 0,255,255, 255,0,255) * 32
             self.data.putpalette(self.palette)
         else:
@@ -176,7 +177,7 @@ class PyntImageRGBA(PyntImage):
         self.draw = ImageDraw.Draw(self.data)
         self.transp_color = (0,0,0,0)
         #self.data = numpy.zeros((self.resolution[0], self.resolution[1], 4), dtype=numpy.uint8)
-        #self.data = 
+        #self.data =
         #self.data[:, :, :] = (255, 255, 255, 255)
 
     def set_transp_color(self, c):

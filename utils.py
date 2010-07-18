@@ -82,7 +82,7 @@ def floodfill(image, xy, value, border=None):
             edge = newedge
     return mask
 
-def file_browse(dialog_action, file_name="", file_ext="pynt"):
+def file_browse(dialog_action, file_dir="", file_name="", file_ext="pynt"):
 	"""This function is used to browse for a pyWine file.
 	It can be either a save or open dialog depending on
 	what dialog_action is.
@@ -110,6 +110,9 @@ def file_browse(dialog_action, file_name="", file_ext="pynt"):
 	"""set the filename if we are saving"""
 	if (dialog_action==gtk.FILE_CHOOSER_ACTION_SAVE):
 		file_dialog.set_current_name(file_name)
+
+        if file_dir != "":
+            file_dialog.set_current_folder(file_dir)
 	"""Create and add the pynt filter"""
 	filter = gtk.FileFilter()
 	filter.set_name("Pynt project")
@@ -146,11 +149,11 @@ def make_bbox(box):
 
 def combine_bbox(bb1, bb2):
     if bb1 is not None and bb2 is not None:
-        return (min(bb1[0], bb2[0]), min(bb1[1], bb2[1]), max(bb1[2], bb2[2]), max(bb1[3], bb2[3]))   
+        return (min(bb1[0], bb2[0]), min(bb1[1], bb2[1]), max(bb1[2], bb2[2]), max(bb1[3], bb2[3]))
     elif bb1 is not None:
         return bb1
     elif bb2 is not None:
         return bb2
     else:
         return None
-    
+

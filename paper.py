@@ -29,18 +29,18 @@ class PyntPaper(gtk.DrawingArea):
             gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
        "fgcolor-picked": (
             gobject.SIGNAL_RUN_LAST,
-            gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),                       
+            gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
        "bgcolor-picked": (
             gobject.SIGNAL_RUN_LAST,
-            gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),                        
+            gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
        "set-tool": (
             gobject.SIGNAL_RUN_LAST,
-            gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),                        
+            gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
        }
 
     def __init__(self, stack):
         super(PyntPaper, self).__init__()
-        
+
         self.stack = stack
         self.zoom = 1
 
@@ -56,7 +56,7 @@ class PyntPaper(gtk.DrawingArea):
         #self.keys_pressed = []
 
         #this is needed to make PyntPaper aware of the scrollbars
-        self.set_set_scroll_adjustments_signal("set-scroll-adjustments")        
+        self.set_set_scroll_adjustments_signal("set-scroll-adjustments")
 
 # --- GUI callbacks ---
 
@@ -71,12 +71,12 @@ class PyntPaper(gtk.DrawingArea):
             height=self.allocation.height,
             window_type=gdk.WINDOW_CHILD,
             wclass=gdk.INPUT_OUTPUT,
-            event_mask = self.get_events() | gtk.gdk.BUTTON_MOTION_MASK 
+            event_mask = self.get_events() | gtk.gdk.BUTTON_MOTION_MASK
                         | gtk.gdk.EXPOSURE_MASK | gtk.gdk.CONFIGURE
                         | gtk.gdk.BUTTON1_MOTION_MASK | gtk.gdk.BUTTON_PRESS_MASK
                         | gtk.gdk.BUTTON_RELEASE_MASK | gtk.gdk.POINTER_MOTION_MASK
                         | gtk.gdk.POINTER_MOTION_HINT_MASK | gtk.gdk.LEAVE_NOTIFY_MASK
-                        | gtk.gdk.KEY_PRESS | gtk.gdk.KEY_RELEASE) 
+                        | gtk.gdk.KEY_PRESS | gtk.gdk.KEY_RELEASE)
 
         self.set_flags(gtk.CAN_FOCUS)
         self.set_extension_events(gtk.gdk.EXTENSION_EVENTS_CURSOR)  #for pressure
@@ -86,13 +86,13 @@ class PyntPaper(gtk.DrawingArea):
         self.style.set_background(self.window, gtk.STATE_NORMAL)
         self.window.move_resize(*self.allocation)
         self.gc = self.style.fg_gc[gtk.STATE_NORMAL]
-        
+
         #self.connect("key_press_event", self.do_key_press_event)
         #self.connect("key_press_event", self.do_key_press_event)
         w, h = self.window.get_size()
         #w, h = 100,100
         #print "paper w, h:", w, h
-        
+
         self.pixmap = gtk.gdk.Pixmap(None, w, h, 24)
         self.gc = self.style.fg_gc[gtk.STATE_NORMAL]
         enable_devices()
@@ -101,11 +101,11 @@ class PyntPaper(gtk.DrawingArea):
         # The do_unrealized method is responsible for freeing the GDK resources
         # De-associate the window we created in do_realize with ourselves
         self.window.destroy()
-		
+
     def do_size_request(self, requisition):
         requisition.height = -1 #10*self.columns
-        requisition.width = -1 #20 * (len(self.colors) // self.columns)	
-	
+        requisition.width = -1 #20 * (len(self.colors) // self.columns)
+
     def do_size_allocate(self, allocation):
         self.allocation=allocation
 
@@ -127,10 +127,10 @@ class PyntPaper(gtk.DrawingArea):
 
         self.update_pixmap((x, y, x+(w//z+1)*z, y+(h//z+1)*z))
         self.window.begin_paint_rect((x,y,w,h))
-        self.window.draw_drawable(self.gc, self.pixmap, x, y, x, y, w, h)      
+        self.window.draw_drawable(self.gc, self.pixmap, x, y, x, y, w, h)
 
         self.window.end_paint()
- 
+
 
     def do_configure_event(self, w, e):
         print "configure!"
@@ -161,19 +161,19 @@ class PyntPaper(gtk.DrawingArea):
 
         #self.window.move_region(region, ((self.dx-dx)//z)*z, ((self.dy-dy)//z)*z)
         #sx, sy = self.dx-dx, self.dy-dy
-        
-        
+
+
         #if sx > 0:
         #    self.invalidate_bbox((0,0,sx,h))
         #elif sx < 0:
         #    self.invalidate_bbox((w+sx-z,0,w,h))
-    
+
         #if sy > 0:
         #    self.invalidate_bbox((0,0,w,sy))
         #elif sy < 0:
         #    self.invalidate_bbox((0,h+sy-z,w,h))
 
-        
+
 
 #         if x == 0 and w < wmax:
 #             self.dx = -(wmax-w)//2
@@ -184,7 +184,7 @@ class PyntPaper(gtk.DrawingArea):
 #         else:
 #             self.dy = (y//self.zoom)*self.zoom
 
- 
+
 
         self.stack.clear_scratch()
         self.window.invalidate_rect((0, 0, w, h), False)
@@ -192,7 +192,7 @@ class PyntPaper(gtk.DrawingArea):
         self.dx, self.dy = dx, dy
 
 
- 
+
 #    def do_key_press_event(self, e):
 #        self.keys_pressed.append(gtk.gdk.keyval_name(e.keyval))
 #        print "keys_pressed:", self.keys_pressed
@@ -213,22 +213,22 @@ class PyntPaper(gtk.DrawingArea):
         #if all((xi >= 0, xi < self.stack.resolution[0], y >= 0, y < self.stack.resolution[1])):
         #print "Movement"
 
-        
+
         draw = False
         #if self.stack.mode in ("draw_fg", "erase"):
         if e.state & BUTTON2_MASK or e.device.source == gtk.gdk.SOURCE_ERASER:
                 sx = self.lx - x
                 sy = self.ly - y
                 w, h = self.window.get_size()
-                
+
                 self.window.freeze_updates()
-                self._hadj.value = max(0, min(self.get_xlim()-w, 
+                self._hadj.value = max(0, min(self.get_xlim()-w,
                                               self._hadj.value + sx))
-                self._vadj.value = max(0, min(self.get_ylim()-h, 
+                self._vadj.value = max(0, min(self.get_ylim()-h,
                                               self._vadj.value + sy))
                 self.window.thaw_updates()
                 self.lx = x
-                self.ly = y     
+                self.ly = y
 
         elif e.state & BUTTON1_MASK:
             draw=True
@@ -240,11 +240,11 @@ class PyntPaper(gtk.DrawingArea):
             else:
                 color = self.stack.palette.bgcolor
         else:
-            self.draw_brush(self.brush, self.stack.palette.fgcolor, 
+            self.draw_brush(self.brush, self.stack.palette.fgcolor,
                             (x, y), transient=True)
-            self.emit("coords-changed", self.get_img_coord(x, y)) 
-            self.lx, self.ly = x, y                
-   
+            self.emit("coords-changed", self.get_img_coord(x, y))
+            self.lx, self.ly = x, y
+
         filled = e.state & SHIFT_MASK
 
         if draw:
@@ -257,29 +257,29 @@ class PyntPaper(gtk.DrawingArea):
                         self.draw_line(color, self.line_width, (self.lx, self.ly, x, y))
                     #self.draw_brush(self.brush, color, (x, y), update=False)
                     self.lx, self.ly = x, y
-                    self.emit("coords-changed", self.get_img_coord(x, y)) 
+                    self.emit("coords-changed", self.get_img_coord(x, y))
                 elif self.tool == "points":
                     self.draw_brush(self.brush, color, (x, y), transient=False)
-                    self.emit("coords-changed", self.get_img_coord(x, y)) 
+                    self.emit("coords-changed", self.get_img_coord(x, y))
                 elif self.tool in ("line"):
-                    self.draw_line(color, self.line_width, (self.lx, self.ly, x, y), 
+                    self.draw_line(color, self.line_width, (self.lx, self.ly, x, y),
                                    transient=True)
                     new = self.get_img_coord(x, y)
                     old = self.get_img_coord(self.lx, self.ly)
-                    self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1))  
+                    self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1))
                 elif self.tool in ("rectangle", "brush"):
-                    self.draw_rectangle(color, (self.lx, self.ly, x-self.lx, y-self.ly), 
+                    self.draw_rectangle(color, (self.lx, self.ly, x-self.lx, y-self.ly),
                                         transient=True, filled=filled)
                     new = self.get_img_coord(x, y)
                     old = self.get_img_coord(self.lx, self.ly)
-                    self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1)) 
+                    self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1))
                 elif self.tool == "ellipse":
-                    self.draw_ellipse(color, (self.lx, self.ly, x-self.lx, y-self.ly), 
+                    self.draw_ellipse(color, (self.lx, self.ly, x-self.lx, y-self.ly),
                                       transient=True, filled=filled)
                     new = self.get_img_coord(x, y)
                     old = self.get_img_coord(self.lx, self.ly)
-                    self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1)) 
-                
+                    self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1))
+
 
     def do_leave_notify_event(self, event):
         """Why does this get called on mouse clicks? I sure amn't doing it..."""
@@ -287,7 +287,7 @@ class PyntPaper(gtk.DrawingArea):
         w = min(w, self.stack.resolution[0]*self.zoom)
         h = min(h, self.stack.resolution[1]*self.zoom)
         if not 0<=event.x<w or not 0<=event.y<h:
-            self.emit("coords-changed", (-1, -1)) 
+            self.emit("coords-changed", (-1, -1))
             print "outside!"
             if self.stack.mode is None:
                 bbox = self.stack.clear_scratch()
@@ -297,7 +297,7 @@ class PyntPaper(gtk.DrawingArea):
                 #if self.tool in ("pencil", "points"):
                     #self.lx = self.ly = None
 
-                
+
     def do_button_press_event(self, e):
         print "button press!", e.button
         self.grab_focus()
@@ -332,14 +332,14 @@ class PyntPaper(gtk.DrawingArea):
             img_bbox = (tmp[0], tmp[1], tmp[2]+1, tmp[3]+1)
             tmp = self.stack.get_layer().image.crop(img_bbox)
             self.brush = PyntBrush(data=tmp, transp_color=self.stack.get_layer().image.transp_color)
-            
+
             #self.custom_brush = True
             bbox = self.stack.clear_scratch()
             #self.invalidate_img_bbox(bbox)
             self.emit("set-tool", "points")
             #self.set_tool("points")
         elif self.tool == "floodfill":
-            
+
             if self.stack.mode in ("draw_fg", "erase"):
                 color = self.stack.palette.fgcolor
             elif self.stack.mode == "draw_bg":
@@ -349,7 +349,7 @@ class PyntPaper(gtk.DrawingArea):
             bbox = self.stack.apply_scratch()
         else:
             bbox = self.stack.apply_scratch()
-            
+
         #self.lx = self.ly = None
         self.stack.mode = None
         #bbox=self.stack.clear_scratch()
@@ -402,17 +402,17 @@ class PyntPaper(gtk.DrawingArea):
             if not brush.solid_color and brush.custom_brush:
                 tmp = self.stack.draw_brush(brush, None, (x, y), transient=transient)
             else:
-                tmp = self.stack.draw_brush(brush, color, (x, y), transient=transient)        
+                tmp = self.stack.draw_brush(brush, color, (x, y), transient=transient)
             if update:
                 if tmp is not None:
                     self.invalidate_img_bbox(tmp)
                 #self.invalidate_img_bbox((x-w//2, y-h//2, x+w//2+1, y+h//2+1))
 
     def draw_rectangle(self, color, rect, transient=False, filled=False):
-        x, y, w, h = rect 
-        if x+h<self.get_xlim() and y+h<self.get_ylim():            
+        x, y, w, h = rect
+        if x+h<self.get_xlim() and y+h<self.get_ylim():
             startx, starty = self.get_img_coord(x, y)
-            endx, endy = self.get_img_coord(x+w, y+h) 
+            endx, endy = self.get_img_coord(x+w, y+h)
             if filled:
                 fill=color
             else:
@@ -422,8 +422,8 @@ class PyntPaper(gtk.DrawingArea):
                 self.invalidate_img_bbox(coords)
 
     def draw_ellipse(self, color, rect, transient=False, filled=False):
-        x, y, w, h = rect 
-        if x+h<self.get_xlim() and y+h<self.get_ylim():            
+        x, y, w, h = rect
+        if x+h<self.get_xlim() and y+h<self.get_ylim():
             startx, starty = self.get_img_coord(x, y)
             endx, endy = self.get_img_coord(x+w, y+h)
             if filled:
@@ -445,7 +445,7 @@ class PyntPaper(gtk.DrawingArea):
             #print "adjustments:", self.lx, self.ly
 
             #print "size_request():", w, h
-            
+
             self.invalidate_img_bbox(bbox)
 
     def pick_fgcolor(self, xy):
@@ -463,7 +463,7 @@ class PyntPaper(gtk.DrawingArea):
 # --- Coordinate transformations
 
     def get_xlim(self):
-        return self.stack.resolution[0]*self.zoom 
+        return self.stack.resolution[0]*self.zoom
 
     def get_ylim(self):
         return self.stack.resolution[1]*self.zoom
@@ -476,9 +476,9 @@ class PyntPaper(gtk.DrawingArea):
         x0, y0, x1, y1 = bbox
         dx = (self.dx//z)*z
         dy = (self.dy//z)*z
-        return ((x0+dx)//z, (y0+dy)//z, 
+        return ((x0+dx)//z, (y0+dy)//z,
                 (x1+dx)//z, (y1+dy)//z)
-    
+
     def get_paper_bbox(self, bbox):
         x0, y0, x1, y1 = bbox
         return (x0*self.zoom-self.dx, y0*self.zoom-self.dy,
@@ -508,10 +508,10 @@ class PyntPaper(gtk.DrawingArea):
     def invalidate(self):
         w, h = self.window.get_size()
         self.window.invalidate_rect((0, 0, w, h), True)
-        
+
     def set_zoom(self, zoom):
 
-        print "zoomin'...", 
+        print "zoomin'...",
 
         if zoom >= 1 and zoom <= 256:  #zooming to less than 1 is flaky...
 
@@ -543,13 +543,13 @@ class PyntPaper(gtk.DrawingArea):
 
             self._hadj.set_all(value=xvalue,
                                lower=0, #min(0, ((xaim-x)//zoom)*zoom),
-                               upper=self.stack.resolution[0]*zoom-1, 
-                               step_increment=zoom, page_increment=zoom, 
+                               upper=self.stack.resolution[0]*zoom-1,
+                               step_increment=zoom, page_increment=zoom,
                                page_size=w)
             self._vadj.set_all(value=yvalue,
                                lower=0, #min(0, ((yaim-y)//zoom)*zoom),
-                               upper=self.stack.resolution[1]*zoom-1, 
-                               step_increment=zoom, page_increment=zoom, 
+                               upper=self.stack.resolution[1]*zoom-1,
+                               step_increment=zoom, page_increment=zoom,
                                page_size=h)
 
             #update the view
@@ -559,19 +559,19 @@ class PyntPaper(gtk.DrawingArea):
             self.zoom = zoom
             #self._hadj.upper = self.stack.resolution[0]*self.zoom
             #self._vadj.upper = self.stack.resolution[1]*self.zoom
-            
+
             #self.stack.clear_scratch()
-            #self.window.invalidate_rect((0, 0, w, h), False)            
+            #self.window.invalidate_rect((0, 0, w, h), False)
             #self.set_adjustments(self.get_img_coord(
 
     def set_width(self, width):
         self.line_width = width
         self.brush = PyntBrush(size=(width, width))
-            
+
     def update_pixmap(self, bbox):
         wtot, htot = self.stack.resolution[0]*self.zoom, self.stack.resolution[1]*self.zoom
         #print "update_pixmap:", bbox
-        
+
         x0, y0, x1, y1 = bbox
         x0 = max(0, x0)
         y0 = max(0, y0)
@@ -586,9 +586,9 @@ class PyntPaper(gtk.DrawingArea):
         #w, h = int(self.zoom*((x1-x0)/self.zoom+0.5)), int(self.zoom*((y1-y0)/self.zoom+0.5))
 
         #print "updating pixmap:", w, h
-        
+
         if self.zoom != 1:
-            img_bbox = self.get_img_bbox((x0, y0, x0+w, y0+h)) 
+            img_bbox = self.get_img_bbox((x0, y0, x0+w, y0+h))
         else:
             img_bbox = (x0+dx, y0+dy, x0+w+dx, y0+h+dy)
 
@@ -601,7 +601,7 @@ class PyntPaper(gtk.DrawingArea):
         if w < x1 or h < y1:
             self.pixmap.draw_rectangle(self.gc, True, 0, 0, *self.pixmap.get_size())
 
-        self.pixmap.draw_rgb_32_image(self.gc, x0, y0, 
+        self.pixmap.draw_rgb_32_image(self.gc, x0, y0,
                                       w, h, gtk.gdk.RGB_DITHER_NONE,
                                       imagedata, rowstride=w*4)
 
