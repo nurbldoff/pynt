@@ -46,6 +46,7 @@ class PyntMain(object):
         #    self.image = image
 
         self.save_file = ""
+        self.brush_file = ""
 
         self.stack=PyntStack()
 
@@ -114,6 +115,7 @@ class PyntMain(object):
                "on_menu_brush_rotate_plus90" : lambda w: self.paper.brush.rotate(90),
                "on_menu_brush_rotate_minus90" : lambda w: self.paper.brush.rotate(-90),
                "on_brush_solid_color_toggle" : self.on_brush_solid_color_toggle,
+                "on_menu_brush_export" : self.on_export_brush,
                "on_menu_clear" : self.on_clear_layer,
                "on_menu_animated_toggled" : self.toggle_frame,
                "on_menu_layer_visible_toggled" : self.toggle_visible,
@@ -662,6 +664,14 @@ class PyntMain(object):
             pyntdata = PyntData(self.stack)
             pyntdata.save(self.save_file)
 
+    def on_save_brush(self, widget):
+        """Save current image as a Pynt file (pickled python object)"""
+        if self.save_file is "":
+            self.on_save_image_as(widget)
+        else:
+            pyntdata = PyntData(self.stack)
+            pyntdata.save(self.save_file)
+
 
     def on_save_image_as(self, widget):
         """Save current image as a Pynt file (pickled python object)"""
@@ -675,6 +685,21 @@ class PyntMain(object):
 
             self.save_file = save_file
             self.update_window_title()
+
+    def on_export_brush(self, widget):
+        """Export image as a palette based PNG (layers are merged in the image)"""
+        filedir, filename = os.path.split(self.brush_file)
+        filename = os.path.splitext(filename)[0] + ".png"
+        brush_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE, file_dir=filedir,
+                                file_name=filename)
+        if brush_file != "":
+            path, extension = os.path.splitext(brush_file)
+            if extension == "":
+                brush_file = path + ".png"
+            #img = self.stack.get_area(*((0, 0) + self.stack.resolution))
+            img = self.paper.brush.data
+            img.save(brush_file, "PNG", transparency=0)
+            self.brush_file = brush_file
 
     def on_load_image(self, widget):
         """Load a Pynt image file"""

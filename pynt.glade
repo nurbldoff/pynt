@@ -9,7 +9,6 @@
     <child>
       <widget class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">3</property>
         <child>
           <widget class="GtkMenuBar" id="menubar">
@@ -242,6 +241,14 @@
                         <signal name="toggled" handler="on_brush_solid_color_toggle"/>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="menu_brush_export">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Export</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_menu_brush_export"/>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>
@@ -417,7 +424,6 @@
             <child>
               <widget class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
                 <child>
                   <widget class="GtkSpinButton" id="button_width">
                     <property name="visible">True</property>
@@ -613,7 +619,6 @@
                 <child>
                   <widget class="GtkVBox" id="vbox_palette">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
                     <child>
                       <widget class="GtkHBox" id="hbox2">
                         <property name="visible">True</property>
@@ -715,7 +720,6 @@
             <child>
               <widget class="GtkVBox" id="vbox3">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
                 <child>
                   <widget class="GtkHSeparator" id="hseparator1">
                     <property name="visible">True</property>
@@ -856,7 +860,6 @@
     <child>
       <widget class="GtkVBox" id="pe_vbox_main">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">3</property>
         <child>
           <widget class="GtkHBox" id="hbox8">
@@ -877,7 +880,6 @@
             <child>
               <widget class="GtkVBox" id="vbox5">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
                 <property name="spacing">3</property>
                 <child>
                   <widget class="GtkHBox" id="hbox9">
@@ -1025,7 +1027,6 @@
             <child>
               <widget class="GtkVBox" id="vbox6">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
                 <child>
                   <placeholder/>
                 </child>
@@ -1103,19 +1104,17 @@
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
-          <widget class="GtkTable" id="table1">
+          <widget class="GtkTable" id="table2">
             <property name="visible">True</property>
             <property name="n_rows">3</property>
             <property name="n_columns">3</property>
             <child>
-              <widget class="GtkVBox" id="vbox1">
+              <widget class="GtkVBox" id="vbox4">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
                 <child>
-                  <widget class="GtkLabel" id="label1">
+                  <widget class="GtkLabel" id="label7">
                     <property name="visible">True</property>
                     <property name="label" translatable="yes">X start</property>
                   </widget>
@@ -1146,11 +1145,10 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkVBox" id="vbox2">
+              <widget class="GtkVBox" id="vbox7">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
                 <child>
-                  <widget class="GtkLabel" id="label2">
+                  <widget class="GtkLabel" id="label8">
                     <property name="visible">True</property>
                     <property name="label" translatable="yes">Y start</property>
                   </widget>
@@ -1181,11 +1179,10 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkVBox" id="vbox3">
+              <widget class="GtkVBox" id="vbox8">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
                 <child>
-                  <widget class="GtkLabel" id="label3">
+                  <widget class="GtkLabel" id="label9">
                     <property name="visible">True</property>
                     <property name="label" translatable="yes">X width</property>
                   </widget>
@@ -1218,11 +1215,10 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkVBox" id="vbox4">
+              <widget class="GtkVBox" id="vbox9">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
                 <child>
-                  <widget class="GtkLabel" id="label4">
+                  <widget class="GtkLabel" id="label10">
                     <property name="visible">True</property>
                     <property name="label" translatable="yes">Y height</property>
                   </widget>
@@ -1280,7 +1276,7 @@
             <property name="layout_style">end</property>
             <child>
               <widget class="GtkButton" id="button2">
-                <property name="label" translatable="yes">gtk-cancel</property>
+                <property name="label">gtk-cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -1294,7 +1290,7 @@
             </child>
             <child>
               <widget class="GtkButton" id="button1">
-                <property name="label" translatable="yes">gtk-ok</property>
+                <property name="label">gtk-ok</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
