@@ -50,9 +50,11 @@ class PyntPaper(gtk.DrawingArea):
 
         self.dx = self.dy = 0          #scrollbar offsets
         self.lx = self.ly = 0       #last mouse point (for drawing)
+        self.nx = self.ny = 0
 
         self.selection = None
         self.selectionrect = None
+
 
         #self.keys_pressed = []
 
@@ -72,6 +74,7 @@ class PyntPaper(gtk.DrawingArea):
             height=self.allocation.height,
             window_type=gdk.WINDOW_CHILD,
             wclass=gdk.INPUT_OUTPUT,
+            cursor=gtk.gdk.Cursor(gtk.gdk.TCROSS),
             event_mask = self.get_events() | gtk.gdk.BUTTON_MOTION_MASK
                         | gtk.gdk.EXPOSURE_MASK | gtk.gdk.CONFIGURE
                         | gtk.gdk.BUTTON1_MOTION_MASK | gtk.gdk.BUTTON_PRESS_MASK
@@ -87,6 +90,38 @@ class PyntPaper(gtk.DrawingArea):
         self.style.set_background(self.window, gtk.STATE_NORMAL)
         self.window.move_resize(*self.allocation)
         self.gc = self.style.fg_gc[gtk.STATE_NORMAL]
+
+        # cursom cursor
+        self.cursor_pixmap=gtk.gdk.Pixmap(self.window,19,19,1)
+        self.gc.set_line_attributes(1, gtk.gdk.LINE_DOUBLE_DASH, gtk.gdk.CAP_BUTT, gtk.gdk.JOIN_MITER)
+        colormap = gtk.gdk.colormap_get_system()
+        black = colormap.alloc_color('black')
+        white = colormap.alloc_color('white')
+
+        bgc = self.cursor_pixmap.new_gc(foreground=black)
+        wgc = self.cursor_pixmap.new_gc(foreground=white)
+        sgc = self.cursor_pixmap.new_gc(foreground=white)
+        sgc.set_dashes(0, (1,1))
+        sgc.set_line_attributes(1, gtk.gdk.LINE_ON_OFF_DASH, gtk.gdk.CAP_BUTT, gtk.gdk.JOIN_MITER)
+        #self.cursor_pixmap.draw_line(gc, True, 0, 0, 9, 9)
+        self.cursor_pixmap.draw_line(sgc, 0, 9, 19, 9)
+        #self.cursor_pixmap.draw_line(sgc, 18, 9, 11, 9)
+        self.cursor_pixmap.draw_line(sgc, 9, 0, 9, 19)
+        #self.cursor_pixmap.draw_line(sgc, 9, 18, 9, 11)
+
+        self.cursor_mask=gtk.gdk.Pixmap(self.window,19,19,1)
+        self.cursor_mask.draw_rectangle(bgc,True,0,0,19,19)
+        self.cursor_mask.draw_line(wgc, 0, 9, 7, 9)
+        self.cursor_mask.draw_line(wgc, 18, 9, 11, 9)
+        self.cursor_mask.draw_line(wgc, 9, 0, 9, 7)
+        self.cursor_mask.draw_line(wgc, 9, 18, 9, 11)
+
+        cur=gtk.gdk.Cursor(self.cursor_pixmap,self.cursor_mask,
+                            white,
+                            black,10,10)
+
+        self.window.set_cursor(cur)
+
 
         #self.connect("key_press_event", self.do_key_press_event)
         #self.connect("key_press_event", self.do_key_press_event)
@@ -129,6 +164,8 @@ class PyntPaper(gtk.DrawingArea):
         self.update_pixmap((x, y, x+(w//z+1)*z, y+(h//z+1)*z))
         self.window.begin_paint_rect((x,y,w,h))
         self.window.draw_drawable(self.gc, self.pixmap, x, y, x, y, w, h)
+
+        #self.draw_cursor(self.lx, self.ly)
 
         if self.selectionrect:
             self.gc.set_line_attributes(1, gtk.gdk.LINE_DOUBLE_DASH, gtk.gdk.CAP_BUTT, gtk.gdk.JOIN_MITER)
@@ -212,7 +249,7 @@ class PyntPaper(gtk.DrawingArea):
 #            print "keys_pressed:", self.keys_pressed
 
     def do_motion_notify_event(self, e, f=None):
-        x, y = int(e.x), int(e.y)
+        x, y = int(e.x)-1, int(e.y)-1
         xi, yi = self.get_img_coord(x, y)
         if (xi, yi) == self.get_img_coord(self.lx, self.ly):
                 #print "no movement"
@@ -455,6 +492,12 @@ class PyntPaper(gtk.DrawingArea):
             # x0, y0, x1, y1 = paperbbox
             # self.window.draw_rectangle(self.gc, False, x0, y0, x1-x0, y1-y0)
 
+    def draw_cursor(self, x, y):
+        self.gc.set_line_attributes(1, gtk.gdk.LINE_DOUBLE_DASH, gtk.gdk.CAP_BUTT, gtk.gdk.JOIN_MITER)
+        self.window.draw_line(self.gc, x-10, y, x-2, y)
+        self.window.draw_line(self.gc, x, y-10, x, y-2)
+        self.window.draw_line(self.gc, x+10, y, x+2, y)
+        self.window.draw_line(self.gc, x, y+10, x, y+2)
 
 
     def draw_ellipse(self, color, rect, transient=False, filled=False):
