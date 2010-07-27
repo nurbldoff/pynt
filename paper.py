@@ -52,10 +52,11 @@ class PyntPaper(gtk.DrawingArea):
         self.lx = self.ly = 0       #last mouse point (for drawing)
 
         self.selection = None
+        self.selectionrect = None
 
         #self.keys_pressed = []
 
-        #this is needed to make PyntPaper aware of the scrollbars
+        # this is needed to make PyntPaper aware of the scrollbars
         self.set_set_scroll_adjustments_signal("set-scroll-adjustments")
 
 # --- GUI callbacks ---
@@ -123,11 +124,18 @@ class PyntPaper(gtk.DrawingArea):
         x, y, w, h = e.area
 
         #print "expose!", "x0:", x0, "y0:", y0, "x1:", x1, "y1:", y1
-        #print "expose!", "x:", x, "y:", y, "w:", w, "h:", h
+        print "expose!", "x:", x, "y:", y, "w:", w, "h:", h
 
         self.update_pixmap((x, y, x+(w//z+1)*z, y+(h//z+1)*z))
         self.window.begin_paint_rect((x,y,w,h))
         self.window.draw_drawable(self.gc, self.pixmap, x, y, x, y, w, h)
+
+        if self.selectionrect:
+            self.gc.set_line_attributes(1, gtk.gdk.LINE_DOUBLE_DASH, gtk.gdk.CAP_BUTT, gtk.gdk.JOIN_MITER)
+            x0, y0, x1, y1 = self.selectionrect
+            print "exposing selectionrect", ( x0, y0, x1, y1)
+            self.window.draw_rectangle(self.gc, False, x0+self.zoom, y0+self.zoom, x1-x0-self.zoom-1, y1-y0-self.zoom-1)
+            #self.selectionrect = None
 
         self.window.end_paint()
 
@@ -240,8 +248,9 @@ class PyntPaper(gtk.DrawingArea):
             else:
                 color = self.stack.palette.bgcolor
         else:
-            self.draw_brush(self.brush, self.stack.palette.fgcolor,
-                            (x, y), transient=True)
+            if self.tool not in ("colorpicker", "brush"):
+                self.draw_brush(self.brush, self.stack.palette.fgcolor,
+                                (x, y), transient=True)
             self.emit("coords-changed", self.get_img_coord(x, y))
             self.lx, self.ly = x, y
 
@@ -267,12 +276,17 @@ class PyntPaper(gtk.DrawingArea):
                     new = self.get_img_coord(x, y)
                     old = self.get_img_coord(self.lx, self.ly)
                     self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1))
-                elif self.tool in ("rectangle", "brush"):
+                elif self.tool == "rectangle":
                     self.draw_rectangle(color, (self.lx, self.ly, x-self.lx, y-self.ly),
                                         transient=True, filled=filled)
                     new = self.get_img_coord(x, y)
                     old = self.get_img_coord(self.lx, self.ly)
                     self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1))
+                elif self.tool == "brush":
+                    new = self.get_img_coord(x, y)
+                    old = self.get_img_coord(self.lx, self.ly)
+                    self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1))
+                    self.draw_selectbox((self.lx, self.ly, x-self.lx, y-self.ly))
                 elif self.tool == "ellipse":
                     self.draw_ellipse(color, (self.lx, self.ly, x-self.lx, y-self.ly),
                                       transient=True, filled=filled)
@@ -325,39 +339,43 @@ class PyntPaper(gtk.DrawingArea):
 
     def do_button_release_event(self, e):
         print "button release!"
-        if self.tool == "brush":
-            #print "Getting new brush..."
-            bbox = (self.lx, self.ly, int(e.x), int(e.y))
-            tmp = self.get_img_bbox(bbox)
-            img_bbox = (tmp[0], tmp[1], tmp[2]+1, tmp[3]+1)
-            tmp = self.stack.get_layer().image.crop(img_bbox)
-            self.brush = PyntBrush(data=tmp, transp_color=self.stack.get_layer().image.transp_color)
+        if e.button in (1,3):
+            if self.tool == "brush":
+                #print "Getting new brush..."
+                bbox = make_bbox((self.lx, self.ly, int(e.x), int(e.y)))
 
-            #self.custom_brush = True
-            bbox = self.stack.clear_scratch()
-            #self.invalidate_img_bbox(bbox)
-            self.emit("set-tool", "points")
-            #self.set_tool("points")
-        elif self.tool == "floodfill":
+                tmp = self.get_img_bbox(bbox)
+                img_bbox = (tmp[0], tmp[1], tmp[2]+1, tmp[3]+1)
+                tmp = self.stack.get_layer().image.crop(img_bbox)
+                self.brush = PyntBrush(data=tmp, transp_color=self.stack.get_layer().image.transp_color)
 
-            if self.stack.mode in ("draw_fg", "erase"):
-                color = self.stack.palette.fgcolor
-            elif self.stack.mode == "draw_bg":
-                color = self.stack.palette.bgcolor
+                #self.custom_brush = True
+                #bbox = self.stack.clear_scratch()
 
-            self.floodfill(color, (int(e.x), int(e.y)))
-            bbox = self.stack.apply_scratch()
-        else:
-            bbox = self.stack.apply_scratch()
+                self.emit("set-tool", "points")
+                #self.set_tool("points")
 
-        #self.lx = self.ly = None
-        self.stack.mode = None
-        #bbox=self.stack.clear_scratch()
-        if bbox is not None:
-            self.invalidate_img_bbox(bbox)
+                bbox = self.get_img_bbox(self.selectionrect)
+                self.selectionrect = None
 
-    #def do_leave_notify_event(self, e):
-    #    print "leave notify!"
+
+            elif self.tool == "floodfill":
+
+                if self.stack.mode in ("draw_fg", "erase"):
+                    color = self.stack.palette.fgcolor
+                elif self.stack.mode == "draw_bg":
+                    color = self.stack.palette.bgcolor
+
+                self.floodfill(color, (int(e.x), int(e.y)))
+                bbox = self.stack.apply_scratch()
+            else:
+                bbox = self.stack.apply_scratch()
+
+            #self.lx = self.ly = None
+            self.stack.mode = None
+            #bbox=self.stack.clear_scratch()
+            if bbox is not None:
+                self.invalidate_img_bbox(bbox)
 
 
     def on_undo(self):
@@ -395,7 +413,7 @@ class PyntPaper(gtk.DrawingArea):
             self.invalidate_img_bbox(bbox)
 
     def draw_brush(self, brush, color, coords, transient=False, update=True):
-        z = self.zoom
+        #z = self.zoom
         w, h = brush.size
         x, y = self.get_img_coord(*coords)
         if x>0 and y>0 and x<self.stack.resolution[0] and y<self.stack.resolution[1]:
@@ -420,6 +438,24 @@ class PyntPaper(gtk.DrawingArea):
             coords = self.stack.draw_rect(color, (startx, starty, endx, endy), fill, transient)
             if coords is not None:
                 self.invalidate_img_bbox(coords)
+
+    def draw_selectbox(self, rect):
+        x, y, w, h = rect
+        x, y, x1, y1 = make_bbox((x, y, x+w, y+h))
+        w, h = x1-x, y1-y
+        if x+h<self.get_xlim() and y+h<self.get_ylim():
+            startx, starty = self.get_img_coord(x, y)
+            endx, endy = self.get_img_coord(x+w, y+h)
+            px0, py0, px1, py1 = self.get_paper_bbox((startx-1, starty-1, endx+1, endy+1))
+            self.invalidate_bbox(combine_bbox(self.selectionrect, (px0, py0, px1, py1)))
+            print "setting selectinrect", (px0, py0, px1, py1)
+            self.selectionrect = (px0, py0, px1, py1)
+
+            # self.gc.set_line_attributes(1, gtk.gdk.LINE_DOUBLE_DASH, gtk.gdk.CAP_BUTT, gtk.gdk.JOIN_MITER)
+            # x0, y0, x1, y1 = paperbbox
+            # self.window.draw_rectangle(self.gc, False, x0, y0, x1-x0, y1-y0)
+
+
 
     def draw_ellipse(self, color, rect, transient=False, filled=False):
         x, y, w, h = rect
@@ -450,15 +486,18 @@ class PyntPaper(gtk.DrawingArea):
 
     def pick_fgcolor(self, xy):
         ix, iy = self.get_img_coord(*xy)
-        self.stack.palette.fgcolor = self.stack.get_area(*(ix,iy,ix+1,iy+1)).getpixel((0,0))
+
+        c = self.stack.get_area(*(ix,iy,ix+1,iy+1)).getpixel((0,0))
+        print c
+        self.stack.palette.fgcolor = c
         self.emit("fgcolor-picked", self.stack.palette.fgcolor)
-        print self.stack.palette.fgcolor
+        print "pick_fgcolor:", self.stack.palette.fgcolor
 
     def pick_bgcolor(self, xy):
         ix, iy = self.get_img_coord(*xy)
         self.stack.palette.bgcolor = self.stack.get_area(*(ix,iy,ix+1,iy+1)).getpixel((0,0))
         self.emit("bgcolor-picked", self.stack.palette.bgcolor)
-        print self.stack.palette.fgcolor
+        print "pick_bgcolor:", self.stack.palette.bgcolor
 
 # --- Coordinate transformations
 
@@ -480,9 +519,12 @@ class PyntPaper(gtk.DrawingArea):
                 (x1+dx)//z, (y1+dy)//z)
 
     def get_paper_bbox(self, bbox):
-        x0, y0, x1, y1 = bbox
-        return (x0*self.zoom-self.dx, y0*self.zoom-self.dy,
-                x1*self.zoom-self.dx, y1*self.zoom-self.dy)
+        if bbox:
+            x0, y0, x1, y1 = bbox
+            return (x0*self.zoom-self.dx, y0*self.zoom-self.dy,
+                    x1*self.zoom-self.dx, y1*self.zoom-self.dy)
+        else:
+            return None
 
     def get_update_rect(self, bbox):
         z=self.zoom
@@ -497,8 +539,9 @@ class PyntPaper(gtk.DrawingArea):
 # --- Other functions ---
 
     def invalidate_bbox(self, bbox):
-        x0, y0, x1, y1 = bbox
-        self.window.invalidate_rect((x0, y0, x1-x0, y1-y0), False)
+        if bbox:
+            x0, y0, x1, y1 = bbox
+            self.window.invalidate_rect((x0, y0, x1-x0, y1-y0), False)
 
     def invalidate_img_bbox(self, bbox):
         #print "invalidate_img_bbox():", self.get_paper_bbox(bbox)

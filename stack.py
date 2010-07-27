@@ -26,18 +26,18 @@ class PyntLayer(object):
             self.image = PyntImagePalette(resolution=resolution, data=data)
         else:
             self.image = PyntImagePalette(resolution=resolution, fillcolor=fillcolor)
-            
+
         self.opacity = opacity
         self.visible=visible
         self.anim=anim
 
 
 class PyntStack(object):
-    """A stack is a number of Layers in a certain order. Drawing operations 
+    """A stack is a number of Layers in a certain order. Drawing operations
     on the stack are performed on the active layer, and are undoable."""
 
     def __init__(self, resolution=(800,600), data=None, palette=None):
-        
+
         self.layers=[]
         self.layers.append(PyntLayer(resolution=resolution, fillcolor=0))
 
@@ -124,19 +124,19 @@ class PyntStack(object):
         return self.get_layer().image.getbbox()
 
     def toggle_animated(self):
-        self.get_layer().anim = not self.get_layer().anim 
+        self.get_layer().anim = not self.get_layer().anim
 
     def add_layer(self, data=None, visible=True, anim=False):
         if data is None:
             l = PyntLayer(resolution=self.resolution, visible=visible, anim=anim)
             self.layers.insert(self.active_layer+1, l)
-                               
+
         else:
-            l = PyntLayer(resolution=self.resolution, data=data, 
+            l = PyntLayer(resolution=self.resolution, data=data,
                           visible=visible, anim=anim)
             self.layers.insert(self.active_layer+1, l)
         return l
-            
+
 
     def delete_layer(self, n=None):
         if n is None:
@@ -158,7 +158,7 @@ class PyntStack(object):
             lb = self.get_layer(b)
         else:
             return False
-            
+
         bbox = la.image.getbbox()
         print "join_layers, bbox:", bbox
         if bbox is not None:
@@ -233,7 +233,7 @@ class PyntStack(object):
                 return True
         return False
 
-        
+
 
     def prev_frame(self):
         #if self.layers[self.active_layer].anim:
@@ -338,7 +338,7 @@ class PyntStack(object):
             self.scratch.image.paste(brush.data, (pos[0]-w, pos[1]-h),
                                      mask=brush.get_mask())
         else:
-            self.scratch.image.paint(color, (pos[0]-w, pos[1]-h), 
+            self.scratch.image.paint(color, (pos[0]-w, pos[1]-h),
                                      mask=brush.get_mask())
         if self.last_brush_bbox is None:
             new = ((pos[0]-w, pos[1]-h, pos[0]+w+1, pos[1]+h+1))
@@ -362,13 +362,13 @@ class PyntStack(object):
         for l in self.layers:
             l.image.set_palette(colors)
         self.scratch.image.set_palette(colors)
-            
+
     def floodfill2(self, color, xy):
         self.scratch.image.data = self.get_layer().image.data.copy()
         #self.scratch.image.data.load()
         #self.scratch.image.data.putalpha(255)  #why doesn't this work?
         mask = self.scratch.image.floodfill(color, xy)
-        #self.scratch.image.data = ImageChops.difference(self.scratch.image.data, 
+        #self.scratch.image.data = ImageChops.difference(self.scratch.image.data,
         #          self.layers[self.active_layer].image.data) #OK, getting the difference instead...
         if mask is not None:
             self.scratch.image.data.putalpha(mask)
@@ -402,7 +402,7 @@ class PyntStack(object):
             #print scratch_bbox
             changed_part = l.image.crop(scratch_bbox)
             #changed_part.load()
-            new_change = PyntChange(changed_part, (scratch_bbox[0], scratch_bbox[1]), 
+            new_change = PyntChange(changed_part, (scratch_bbox[0], scratch_bbox[1]),
                                     self.get_layer())
             self.changes.append(new_change)
             cropped_scratch = self.scratch.image.crop(scratch_bbox)
@@ -417,7 +417,7 @@ class PyntStack(object):
             del(self.undone_changes[:])
             return scratch_bbox
         else:
-            return False
+            return None
 
     def undo_change(self):
         if len(self.changes) > 0:
@@ -425,15 +425,15 @@ class PyntStack(object):
             layer = change.layer
             if change.operation == "join layers":
                 layer.image.paste(change.segment, change.position)
-        
+
                 self.set_active_layer(self.layers.index(change.layer))
                 l = self.add_layer()
                 l.image.paste(change.segment2, change.position)
-                unchange = PyntChange(segment=None, position=None, 
+                unchange = PyntChange(segment=None, position=None,
                                       layer=l, operation="join layers")
 
                 self.undone_changes.append(unchange)
-                
+
             else:
                 segment = layer.image.crop(change.get_bbox())
                 unchange = PyntChange(segment, change.position,
@@ -443,7 +443,7 @@ class PyntStack(object):
 
             return(change.get_bbox())
         else:
-            return False
+            return None
 
     def redo_change(self):
         if len(self.undone_changes) > 0:
@@ -461,4 +461,4 @@ class PyntStack(object):
                 self.changes.append(change)
                 return(unchange.get_bbox())
         else:
-            return False
+            return None
