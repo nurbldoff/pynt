@@ -90,7 +90,8 @@ def file_browse(dialog_action, file_dir="", file_name="", file_ext="pynt"):
 	selects one, however a blank string will be returned
 	if they cancel or do not select one.
 	dialog_action - The open or save mode for the dialog either
-	gtk.FILE_CHOOSER_ACTION_OPEN, gtk.FILE_CHOOSER_ACTION_SAVE
+	gtk.FILE_CHOOSER_ACTION_OPEN, gtk.FILE_CHOOSER_ACTION_SA
+        VE
         file_name - Default name when doing a save"""
 
 	if (dialog_action==gtk.FILE_CHOOSER_ACTION_OPEN):
@@ -114,21 +115,27 @@ def file_browse(dialog_action, file_dir="", file_name="", file_ext="pynt"):
         if file_dir != "":
             file_dialog.set_current_folder(file_dir)
 	"""Create and add the pynt filter"""
-	filter = gtk.FileFilter()
-	filter.set_name("Pynt project")
-	filter.add_pattern("*." + file_ext)
-	file_dialog.add_filter(filter)
+	pyntfilter = gtk.FileFilter()
+	pyntfilter.set_name("Pynt projects")
+	pyntfilter.add_pattern("*.pynt")
+	file_dialog.add_filter(pyntfilter)
 	"""Create and add the 'all files' filter"""
-	filter = gtk.FileFilter()
-	filter.set_name("All files")
-	filter.add_pattern("*")
-	file_dialog.add_filter(filter)
+	allfilter = gtk.FileFilter()
+	allfilter.set_name("All files")
+	allfilter.add_pattern("*")
+        file_dialog.add_filter(allfilter)
 	"""Create and add the 'all image files' filter"""
-	filter = gtk.FileFilter()
-	filter.set_name("All image files")
-	filter.add_pattern("*.png")
-	file_dialog.add_filter(filter)
+	pngfilter = gtk.FileFilter()
+	pngfilter.set_name("All image files")
+	pngfilter.add_pattern("*.png")
+	file_dialog.add_filter(pngfilter)
 
+        if file_ext == "pynt":
+            file_dialog.set_filter(pyntfilter)
+        elif file_ext == "png":
+            file_dialog.set_filter(pngfilter)
+        else:
+            file_dialog.set_filter(allfilter)
 
 	"""Init the return value"""
 	result = ""

@@ -371,6 +371,7 @@ class PyntPaper(gtk.DrawingArea):
             self.set_zoom(self.zoom-1)
         elif e.button == 5:
             self.set_zoom(self.zoom+1)
+        self.invalidate_img_bbox(self.stack.last_brush_bbox)
         self.stack.last_brush_bbox = None
 
 

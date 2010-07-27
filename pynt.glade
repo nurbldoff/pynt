@@ -584,12 +584,17 @@
                     </child>
                     <child>
                       <widget class="GtkToggleButton" id="button_colorpicker">
-                        <property name="label" translatable="yes">C</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="relief">none</property>
                         <signal name="clicked" handler="on_button_colorpicker_clicked"/>
+                        <child>
+                          <widget class="GtkImage" id="image8">
+                            <property name="visible">True</property>
+                            <property name="pixbuf">colorpicker.png</property>
+                          </widget>
+                        </child>
                       </widget>
                       <packing>
                         <property name="left_attach">1</property>
@@ -620,12 +625,18 @@
                   <widget class="GtkVBox" id="vbox_palette">
                     <property name="visible">True</property>
                     <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
                       <widget class="GtkHBox" id="hbox2">
                         <property name="visible">True</property>
                         <child>
                           <widget class="GtkButton" id="button_palette_prev">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="relief">none</property>
                             <property name="focus_on_click">False</property>
@@ -653,7 +664,7 @@
                         <child>
                           <widget class="GtkButton" id="button_palette_next">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="relief">none</property>
                             <property name="focus_on_click">False</property>
@@ -675,14 +686,8 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
-                        <property name="position">0</property>
+                        <property name="position">2</property>
                       </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
                     </child>
                   </widget>
                   <packing>

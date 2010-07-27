@@ -676,7 +676,8 @@ class PyntMain(object):
     def on_save_image_as(self, widget):
         """Save current image as a Pynt file (pickled python object)"""
         filedir, filename = os.path.split(self.save_file)
-        save_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE, file_dir=filedir, file_name=filename)
+        save_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE, file_dir=filedir,
+                                file_name=filename, file_ext="pynt")
         if save_file != "":
             if not save_file.endswith(".pynt"):
                 save_file += ".pynt"
@@ -691,7 +692,7 @@ class PyntMain(object):
         filedir, filename = os.path.split(self.brush_file)
         filename = os.path.splitext(filename)[0] + ".png"
         brush_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE, file_dir=filedir,
-                                file_name=filename)
+                                file_name=filename, file_ext="png")
         if brush_file != "":
             path, extension = os.path.splitext(brush_file)
             if extension == "":
@@ -705,7 +706,7 @@ class PyntMain(object):
         """Load a Pynt image file"""
         filedir, filename = os.path.split(self.save_file)
         load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN, file_dir=filedir,
-                                file_name=filename)
+                                file_name=filename, file_ext="pynt")
         if load_file != "":
             f = open(load_file, "r")
             self.save_file = load_file
@@ -733,7 +734,7 @@ class PyntMain(object):
         filedir, filename = os.path.split(self.save_file)
         filename = os.path.splitext(filename)[0] + ".png"
         save_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE, file_dir=filedir,
-                                file_name=filename)
+                                file_name=filename, file_ext="png")
         if save_file != "":
             path, extension = os.path.splitext(save_file)
             if extension == "":
@@ -745,7 +746,7 @@ class PyntMain(object):
     def on_import_image(self, widget):
         """Load an image file into Pynt (replaces current image)
            Currently must be a palette based file (e.g. GIF or palette PNG)"""
-        load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN, "test")
+        load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN, "test", file_ext="png")
         if load_file != "":
             img = Image.open(load_file)
 
