@@ -118,7 +118,7 @@ class PyntPaper(gtk.DrawingArea):
 
         cur=gtk.gdk.Cursor(self.cursor_pixmap,self.cursor_mask,
                             white,
-                            black,10,10)
+                            black,9,9)
 
         self.window.set_cursor(cur)
 
@@ -249,7 +249,7 @@ class PyntPaper(gtk.DrawingArea):
 #            print "keys_pressed:", self.keys_pressed
 
     def do_motion_notify_event(self, e, f=None):
-        x, y = int(e.x)-1, int(e.y)-1
+        x, y = int(e.x), int(e.y)
         xi, yi = self.get_img_coord(x, y)
         if (xi, yi) == self.get_img_coord(self.lx, self.ly):
                 #print "no movement"
@@ -322,7 +322,7 @@ class PyntPaper(gtk.DrawingArea):
                 elif self.tool == "brush":
                     new = self.get_img_coord(x, y)
                     old = self.get_img_coord(self.lx, self.ly)
-                    self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1))
+                    self.emit("coords-changed", (abs(new[0]-old[0])+1, abs(new[1]-old[1])+1))
                     self.draw_selectbox((self.lx, self.ly, x-self.lx, y-self.ly))
                 elif self.tool == "ellipse":
                     self.draw_ellipse(color, (self.lx, self.ly, x-self.lx, y-self.ly),
@@ -341,6 +341,7 @@ class PyntPaper(gtk.DrawingArea):
             self.emit("coords-changed", (-1, -1))
             print "outside!"
             if self.stack.mode is None:
+                "Clearing..."
                 bbox = self.stack.clear_scratch()
                 if bbox is not None:
                     self.invalidate_img_bbox(bbox)
@@ -463,6 +464,9 @@ class PyntPaper(gtk.DrawingArea):
                 if tmp is not None:
                     self.invalidate_img_bbox(tmp)
                 #self.invalidate_img_bbox((x-w//2, y-h//2, x+w//2+1, y+h//2+1))
+        else:
+            tmpbb = self.stack.clear_scratch()
+            self.invalidate_img_bbox(tmpbb)
 
     def draw_rectangle(self, color, rect, transient=False, filled=False):
         x, y, w, h = rect
