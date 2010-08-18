@@ -746,24 +746,28 @@ class PyntMain(object):
     def on_import_image(self, widget):
         """Load an image file into Pynt (replaces current image)
            Currently must be a palette based file (e.g. GIF or palette PNG)"""
-        load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN, "test", file_ext="png")
+        filedir, filename = os.path.split(self.save_file)
+        load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN, file_dir=filedir,
+                                file_name="", file_ext="png")
         if load_file != "":
             img = Image.open(load_file)
 
-            if img.mode == "P":
+            if img.mode != "P":
+                # Convert to "optimal" 256 color palette
+                img = img.convert("P", palette=Image.ADAPTIVE, colors=256)
 
-                lut = img.resize((256, 1))
-                lut.putdata(range(256))
-                lut = list(lut.convert("RGB").getdata())
+            lut = img.resize((256, 1))
+            lut.putdata(range(256))
+            lut = list(lut.convert("RGB").getdata())
 
-                print "Image size:", img.size
+            print "Image size:", img.size
 
-                self.stack = PyntStack(resolution=img.size, data = img)
-                self.stack.set_palette(lut)
-                self.stack.palette.set_colors(lut)
-                self.paletteview.palette = self.pe_paletteview.palette = self.stack.palette
-                self.paletteview.invalidate_all()
-                self.pe_paletteview.invalidate_all()
+            self.stack = PyntStack(resolution=img.size, data = img)
+            self.stack.set_palette(lut)
+            self.stack.palette.set_colors(lut)
+            self.paletteview.palette = self.pe_paletteview.palette = self.stack.palette
+            self.paletteview.invalidate_all()
+            self.pe_paletteview.invalidate_all()
 
             self.paper.stack = self.stack
             self.paper.invalidate()

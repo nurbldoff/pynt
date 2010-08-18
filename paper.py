@@ -340,11 +340,11 @@ class PyntPaper(gtk.DrawingArea):
         if not 0<=event.x<w or not 0<=event.y<h:
             self.emit("coords-changed", (-1, -1))
             print "outside!"
-            if self.stack.mode is None:
-                "Clearing..."
-                bbox = self.stack.clear_scratch()
-                if bbox is not None:
-                    self.invalidate_img_bbox(bbox)
+            # if self.stack.mode is None:
+            #     print "Clearing..."
+            #     bbox = self.stack.clear_scratch()
+            #     if bbox is not None:
+            #         self.invalidate_img_bbox(bbox)
             #else:
                 #if self.tool in ("pencil", "points"):
                     #self.lx = self.ly = None
@@ -359,7 +359,9 @@ class PyntPaper(gtk.DrawingArea):
         if e.button == 1:
             if self.tool == "colorpicker":
                 self.pick_fgcolor((self.lx, self.ly))
-            elif self.stack.mode is None:
+            elif self.tool in ["line", "rectangle", "circle", "pencil"]:
+                self.stack.clear_scratch()
+            if self.stack.mode is None:
                 self.stack.mode="draw_fg"
         elif e.button == 3:
             if self.tool == "colorpicker":
