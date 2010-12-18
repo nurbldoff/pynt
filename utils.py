@@ -164,3 +164,44 @@ def combine_bbox(bb1, bb2):
     else:
         return None
 
+
+def create_custom_cursor(window):
+    # custom cursor
+    #cursor_image = gtk.Image()
+    #cursor_image.set_from_file("default_cursor.xpm")
+
+    cursor_pixmap=gtk.gdk.Pixmap(window,19,19,1)
+
+    #cursor_pixmap, cursor_mask = gtk.gdk.pixmap_create_from_xpm(self.window,
+    #                                                            None, "default_cursor.xpm")
+    # self.gc.set_line_attributes(1, gtk.gdk.LINE_DOUBLE_DASH, gtk.gdk.CAP_BUTT, gtk.gdk.JOIN_MITER)
+    colormap = gtk.gdk.colormap_get_system()
+    black = colormap.alloc_color('black')
+    white = colormap.alloc_color('white')
+
+    bgc = cursor_pixmap.new_gc(foreground=black)
+    wgc = cursor_pixmap.new_gc(foreground=white)
+    sgc = cursor_pixmap.new_gc(foreground=white)
+    sgc.set_dashes(0, (1,1))
+    sgc.set_line_attributes(1, gtk.gdk.LINE_ON_OFF_DASH, gtk.gdk.CAP_BUTT, gtk.gdk.JOIN_MITER)
+    #self.cursor_pixmap.draw_line(gc, True, 0, 0, 9, 9)
+    cursor_pixmap.draw_line(sgc, 0, 9, 19, 9)
+    #self.cursor_pixmap.draw_line(sgc, 18, 9, 11, 9)
+    cursor_pixmap.draw_line(sgc, 9, 0, 9, 19)
+    #self.cursor_pixmap.draw_line(sgc, 9, 18, 9, 11)
+
+    cursor_mask=gtk.gdk.Pixmap(window,19,19,1)
+    cursor_mask.draw_rectangle(bgc,True,0,0,19,19)
+    cursor_mask.draw_line(wgc, 0, 9, 7, 9)
+    cursor_mask.draw_line(wgc, 18, 9, 11, 9)
+    cursor_mask.draw_line(wgc, 9, 0, 9, 7)
+    cursor_mask.draw_line(wgc, 9, 18, 9, 11)
+
+    cur=gtk.gdk.Cursor(cursor_pixmap, cursor_mask,
+                       black, white, 9, 9)
+
+    #pixmap = gtk.gdk.Pixmap(None, 1, 1, 1)
+    #color = gtk.gdk.Color()
+    #cursor = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
+
+    return cur

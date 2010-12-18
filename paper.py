@@ -16,8 +16,9 @@ if gtk.pygtk_version < (2, 0):
 
 import Image
 
+import utils
 from image import PyntImage, PyntBrush, PyntImagePalette
-from utils import make_bbox, combine_bbox, enable_devices, get_pressure
+
 
 class PyntPaper(gtk.DrawingArea):
     __gsignals__ = {
@@ -91,37 +92,10 @@ class PyntPaper(gtk.DrawingArea):
         self.window.move_resize(*self.allocation)
         self.gc = self.style.fg_gc[gtk.STATE_NORMAL]
 
-        # cursom cursor
-        self.cursor_pixmap=gtk.gdk.Pixmap(self.window,19,19,1)
-        self.gc.set_line_attributes(1, gtk.gdk.LINE_DOUBLE_DASH, gtk.gdk.CAP_BUTT, gtk.gdk.JOIN_MITER)
-        colormap = gtk.gdk.colormap_get_system()
-        black = colormap.alloc_color('black')
-        white = colormap.alloc_color('white')
+        cursor=utils.create_custom_cursor(self.window)
+        self.window.set_cursor(cursor)
 
-        bgc = self.cursor_pixmap.new_gc(foreground=black)
-        wgc = self.cursor_pixmap.new_gc(foreground=white)
-        sgc = self.cursor_pixmap.new_gc(foreground=white)
-        sgc.set_dashes(0, (1,1))
-        sgc.set_line_attributes(1, gtk.gdk.LINE_ON_OFF_DASH, gtk.gdk.CAP_BUTT, gtk.gdk.JOIN_MITER)
-        #self.cursor_pixmap.draw_line(gc, True, 0, 0, 9, 9)
-        self.cursor_pixmap.draw_line(sgc, 0, 9, 19, 9)
-        #self.cursor_pixmap.draw_line(sgc, 18, 9, 11, 9)
-        self.cursor_pixmap.draw_line(sgc, 9, 0, 9, 19)
-        #self.cursor_pixmap.draw_line(sgc, 9, 18, 9, 11)
-
-        self.cursor_mask=gtk.gdk.Pixmap(self.window,19,19,1)
-        self.cursor_mask.draw_rectangle(bgc,True,0,0,19,19)
-        self.cursor_mask.draw_line(wgc, 0, 9, 7, 9)
-        self.cursor_mask.draw_line(wgc, 18, 9, 11, 9)
-        self.cursor_mask.draw_line(wgc, 9, 0, 9, 7)
-        self.cursor_mask.draw_line(wgc, 9, 18, 9, 11)
-
-        cur=gtk.gdk.Cursor(self.cursor_pixmap,self.cursor_mask,
-                            white,
-                            black,9,9)
-
-        self.window.set_cursor(cur)
-
+        print "Tjoho!"
 
         #self.connect("key_press_event", self.do_key_press_event)
         #self.connect("key_press_event", self.do_key_press_event)
@@ -131,7 +105,7 @@ class PyntPaper(gtk.DrawingArea):
 
         self.pixmap = gtk.gdk.Pixmap(None, w, h, 24)
         self.gc = self.style.fg_gc[gtk.STATE_NORMAL]
-        enable_devices()
+        utils.enable_devices()
 
     def do_unrealize(self):
         # The do_unrealized method is responsible for freeing the GDK resources
@@ -165,7 +139,7 @@ class PyntPaper(gtk.DrawingArea):
         self.window.begin_paint_rect((x,y,w,h))
         self.window.draw_drawable(self.gc, self.pixmap, x, y, x, y, w, h)
 
-        #self.draw_cursor(self.lx, self.ly)
+
 
         if self.selectionrect:
             self.gc.set_line_attributes(1, gtk.gdk.LINE_DOUBLE_DASH, gtk.gdk.CAP_BUTT, gtk.gdk.JOIN_MITER)
@@ -173,6 +147,7 @@ class PyntPaper(gtk.DrawingArea):
             print "exposing selectionrect", ( x0, y0, x1, y1)
             self.window.draw_rectangle(self.gc, False, x0+self.zoom, y0+self.zoom, x1-x0-self.zoom-1, y1-y0-self.zoom-1)
             #self.selectionrect = None
+
 
         self.window.end_paint()
 
@@ -296,7 +271,7 @@ class PyntPaper(gtk.DrawingArea):
         if draw:
                 if self.tool == "pencil":
                     #if self.lx is not None and self.ly is not None:
-                    p = get_pressure(e)
+                    p = utils.get_pressure(e)
                     if type(p) == float:
                         self.draw_line(color, 1+p*self.line_width, (self.lx, self.ly, x, y))
                     else:
@@ -383,7 +358,7 @@ class PyntPaper(gtk.DrawingArea):
         if e.button in (1,3):
             if self.tool == "brush":
                 #print "Getting new brush..."
-                bbox = make_bbox((self.lx, self.ly, int(e.x), int(e.y)))
+                bbox = utils.make_bbox((self.lx, self.ly, int(e.x), int(e.y)))
 
                 tmp = self.get_img_bbox(bbox)
                 img_bbox = (tmp[0], tmp[1], tmp[2]+1, tmp[3]+1)
@@ -485,13 +460,13 @@ class PyntPaper(gtk.DrawingArea):
 
     def draw_selectbox(self, rect):
         x, y, w, h = rect
-        x, y, x1, y1 = make_bbox((x, y, x+w, y+h))
+        x, y, x1, y1 = utils.make_bbox((x, y, x+w, y+h))
         w, h = x1-x, y1-y
         if x+h<self.get_xlim() and y+h<self.get_ylim():
             startx, starty = self.get_img_coord(x, y)
             endx, endy = self.get_img_coord(x+w, y+h)
             px0, py0, px1, py1 = self.get_paper_bbox((startx-1, starty-1, endx+1, endy+1))
-            self.invalidate_bbox(combine_bbox(self.selectionrect, (px0, py0, px1, py1)))
+            self.invalidate_bbox(utils.combine_bbox(self.selectionrect, (px0, py0, px1, py1)))
             print "setting selectinrect", (px0, py0, px1, py1)
             self.selectionrect = (px0, py0, px1, py1)
 

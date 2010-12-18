@@ -66,6 +66,7 @@ class PyntMain(object):
         self.gladefile = "pynt.glade"
         self.mainTree = gtk.glade.XML(self.gladefile, "mainwindow")
         self.peTree = gtk.glade.XML(self.gladefile, "palette_editor")
+        self.resizeTree = gtk.glade.XML(self.gladefile, "image_resize_dialog")
 
         self.mainwindow = self.mainTree.get_widget("mainwindow")
 
@@ -115,7 +116,8 @@ class PyntMain(object):
                "on_menu_brush_rotate_plus90" : lambda w: self.paper.brush.rotate(90),
                "on_menu_brush_rotate_minus90" : lambda w: self.paper.brush.rotate(-90),
                "on_brush_solid_color_toggle" : self.on_brush_solid_color_toggle,
-                "on_menu_brush_export" : self.on_export_brush,
+               "on_menu_brush_export" : self.on_export_brush,
+               "on_menu_image_resize" : self.on_menu_image_resize,
                "on_menu_clear" : self.on_clear_layer,
                "on_menu_animated_toggled" : self.toggle_frame,
                "on_menu_layer_visible_toggled" : self.toggle_visible,
@@ -280,6 +282,11 @@ class PyntMain(object):
 
     def set_coords(self, widget, coords):
         self.label_coords.set_text("(%d, %d)"%coords)
+
+    def on_menu_image_resize(self, widget):
+        self.image_resize_dialog = self.resizeTree.get_widget("image_resize_dialog")
+        self.image_resize_dialog.run()
+
 
     def on_menu_paletteeditor(self, widget):
         self.palette_editor = self.peTree.get_widget("palette_editor")

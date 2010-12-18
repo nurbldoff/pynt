@@ -263,10 +263,11 @@
                     <property name="visible">True</property>
                     <property name="ubuntu_local">True</property>
                     <child>
-                      <widget class="GtkMenuItem" id="menu_resize_image">
+                      <widget class="GtkMenuItem" id="menu_image_resize">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Resize image</property>
+                        <property name="label" translatable="yes">Resize</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_menu_image_resize"/>
                       </widget>
                     </child>
                   </widget>
@@ -1115,7 +1116,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="GtkDialog" id="resize_image_window">
+  <widget class="GtkDialog" id="image_resize_dialog">
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
@@ -1163,8 +1164,6 @@
                   <packing>
                     <property name="top_attach">1</property>
                     <property name="bottom_attach">2</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -1197,8 +1196,6 @@
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -1220,7 +1217,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x2022;</property>
-                        <property name="adjustment">0 0 10000 1 10 10</property>
+                        <property name="adjustment">9 0 10000 1 10 10</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -1233,8 +1230,6 @@
                     <property name="right_attach">3</property>
                     <property name="top_attach">1</property>
                     <property name="bottom_attach">2</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -1269,21 +1264,7 @@
                     <property name="right_attach">2</property>
                     <property name="top_attach">2</property>
                     <property name="bottom_attach">3</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
                 <child>
                   <widget class="GtkFrame" id="frame2">
@@ -1307,6 +1288,18 @@
                     <property name="bottom_attach">2</property>
                   </packing>
                 </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
               </widget>
             </child>
             <child>
@@ -1325,34 +1318,41 @@
             <property name="visible">True</property>
             <property name="layout_style">end</property>
             <child>
-              <widget class="GtkButton" id="resize_cancel">
-                <property name="label">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-                <signal name="activate" handler="on_resize_cancel_activate"/>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
-              <widget class="GtkButton" id="resize_ok">
-                <property name="label">gtk-ok</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-                <signal name="activate" handler="on_resize_ok_activate"/>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
+              <placeholder/>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkDialog" id="dialog1">
+    <property name="border_width">5</property>
+    <property name="type_hint">normal</property>
+    <property name="has_separator">False</property>
+    <child internal-child="vbox">
+      <widget class="GtkVBox" id="dialog-vbox2">
+        <property name="visible">True</property>
+        <property name="spacing">2</property>
+        <child>
+          <placeholder/>
+        </child>
+        <child internal-child="action_area">
+          <widget class="GtkHButtonBox" id="dialog-action_area2">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </widget>
           <packing>
