@@ -226,9 +226,9 @@ class PyntPaper(gtk.DrawingArea):
     def do_motion_notify_event(self, e, f=None):
         x, y = int(e.x), int(e.y)
         xi, yi = self.get_img_coord(x, y)
-        if (xi, yi) == self.get_img_coord(self.lx, self.ly):
+        #if (xi, yi) == self.get_img_coord(self.lx, self.ly):
                 #print "no movement"
-                return None
+        #        return None
         #a, b, state = e.window.get_pointer()
         #if all((xi >= 0, xi < self.stack.resolution[0], y >= 0, y < self.stack.resolution[1])):
         #print "Movement"
@@ -251,8 +251,12 @@ class PyntPaper(gtk.DrawingArea):
                 self.ly = y
 
         elif e.state & BUTTON1_MASK:
+            print "hej"
             draw=True
             color = self.stack.palette.fgcolor
+            #if self.tool not in ("colorpicker", "brush"):
+            #    self.draw_brush(self.brush, self.stack.palette.fgcolor,
+            #                    (x, y), transient=False)
         elif e.state & BUTTON3_MASK:
             draw=True
             if self.stack.palette.bgcolor == 0:
@@ -335,7 +339,9 @@ class PyntPaper(gtk.DrawingArea):
             if self.tool == "colorpicker":
                 self.pick_fgcolor((self.lx, self.ly))
             elif self.tool in ["line", "rectangle", "circle", "pencil"]:
+                #pass
                 self.stack.clear_scratch()
+                self.do_motion_notify_event(e)
             if self.stack.mode is None:
                 self.stack.mode="draw_fg"
         elif e.button == 3:

@@ -48,7 +48,9 @@ class PyntMain(object):
         self.save_file = ""
         self.brush_file = ""
 
+        self.stacks=[]
         self.stack=PyntStack()
+        self.stacks.append(self.stack)
 
         #self.tool = "pencil"
         #self.width = 1
@@ -80,6 +82,7 @@ class PyntMain(object):
         self.paper = PyntPaper(self.stack)
         print "done"
 
+        #self.image_notebook = self.mainTree.get_widget("image_notebook")
         self.scrolledwindow = self.mainTree.get_widget("scrolledwindow")
         self.scrolledwindow.add(self.paper)
 
@@ -135,7 +138,11 @@ class PyntMain(object):
                "on_menu_export_image_activated" : self.on_export_image,
 
                #"on_pe_spinbutton_red_change_value" : self.on_pe_color_edited,
-               "on_pe_button_undo_clicked" : self.on_pe_button_undo
+               "on_menu_new_image" : self.on_new_image,
+               "on_pe_button_undo_clicked" : self.on_pe_button_undo,
+               "on_image_current_page_changed" : self.on_page_changed,
+               "on_menu_image_next" : self.on_image_next,
+               "on_menu_image_previous" : self.on_image_previous,
                }
 
         self.mainTree.signal_autoconnect(dic)
@@ -228,6 +235,7 @@ class PyntMain(object):
         self.menu_layer_visible = self.mainTree.get_widget("menu_layer_visible")
 
         # statusbarv stuff
+        self.label_page = self.mainTree.get_widget("label_page")
         self.label_layer = self.mainTree.get_widget("label_layer")
         self.frame_layer = self.mainTree.get_widget("label_frame")
         self.label_coords = self.mainTree.get_widget("label_coords")
@@ -323,6 +331,69 @@ class PyntMain(object):
         self.paletteview.invalidate_all()
         self.paper.invalidate()
 
+    def on_page_changed(self, widget):
+        print "Page:", self.image_notebook.get_current_page()
+
+
+    def switch_stack(self, stack):
+        self.stack=stack
+        self.paper.stack = self.stack
+
+        self.vbox_palette.remove(self.paletteview)
+        self.paletteview = PyntPaletteView(palette=self.stack.palette)
+        self.vbox_palette.pack_start(self.paletteview)
+        self.paletteview.connect("fgcolor_picked", self.set_fgcolor)
+        self.paletteview.connect("bgcolor_picked", self.set_bgcolor)
+        self.paletteview.show()
+
+        self.pe_vbox_main.remove(self.pe_paletteview)
+        self.pe_paletteview = PyntPaletteView(palette=self.stack.palette, columns=16, pages=1)
+        self.pe_paletteview.connect("fgcolor_picked", self.set_fgcolor)
+        self.pe_paletteview.connect("bgcolor_picked", self.set_bgcolor)
+        self.pe_vbox_main.pack_end(self.pe_paletteview)
+        self.pe_paletteview.show()
+
+        self.paper.invalidate()
+
+        self.update_layer_label()
+        self.update_page_label()
+        self.update_frame_label()
+
+    def on_new_image(self, widget):
+        print "New image"
+
+        #n=self.image_notebook.append_page(gtk.VBox(), gtk.Label("New image"))
+        #self.image_notebook.set_current_page(n)
+        #self.image_notebook.show()
+        #self.image_notebook.queue_draw_area(0,0,-1,-1)
+
+        #print "New page:", n
+
+        stack=PyntStack()
+        self.stacks.append(stack)
+        self.switch_stack(stack)
+
+
+    def on_image_previous(self, widget):
+        print "on_previous_image"
+        #self.image_notebook.next_page()
+        #self.image_notebook.queue_draw_area(0,0,-1,-1)
+        stack_n = self.stacks.index(self.stack)
+        print "stack_n:" , stack_n
+        if stack_n > 0:
+            self.switch_stack(self.stacks[stack_n-1])
+            print "Page:" , stack_n-1
+
+    def on_image_next(self, widget):
+        print "on_next_image"
+        #self.image_notebook.prev_page()
+        #self.image_notebook.queue_draw_area(0,0,-1,-1)
+        stack_n = self.stacks.index(self.stack)
+        print "stack_n:" , stack_n
+        if stack_n < len(self.stacks)-1:
+            self.switch_stack(self.stacks[stack_n+1])
+            print "Page:" , stack_n+1
+
     def set_fgcolor(self, widget, n):
 
         if widget == self.paletteview:
@@ -374,6 +445,10 @@ class PyntMain(object):
         if width > 0:
             self.paper.set_width(width)
 
+    def update_page_label(self):
+        #stats = self.stack.get_layer_stats()
+        page = self.stacks.index(self.stack)+1
+        self.label_page.set_text("%d/%d"%(page, len(self.stacks)))
 
     def update_layer_label(self):
         stats = self.stack.get_layer_stats()

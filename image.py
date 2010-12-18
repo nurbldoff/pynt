@@ -20,20 +20,27 @@ class PyntImage(object):
         #    y0, y1 = y1, y0
         #bbox = (x0, y0, x1, y1)
         if width == 1:
-            self.draw.line(bbox, fill=color)
+            print "x0=%d, y0=%d, x1=%d, y1=%d"%(x0,y0,x1,y1)
+            if x0 == x1 and y0 == y1:
+                self.draw.point((x0, y0), fill=color)
+            else:
+                self.draw.line(bbox, fill=color)
         else:
             dx, dy = x1-x0, y1-y0
+            if dx == dy == 0:
+                xy = (x0-width/2, y0-width/2, x1+width/2, y1+width/2)
+                self.draw.ellipse(xy,fill)
             l = math.sqrt(dx**2 + dy**2)
             sx = .5*((dx > 0 and 2) - 1)
             sy = .5*((dy > 0 and 2) - 1)
-            if l > 0:
-                dyn, dxn = int(((dx/l)*width/2+sx)), int(((dy/l)*width/2+sy))
-                poly = ((x0-dxn,y0+dyn), (x0+dxn,y0-dyn),
-                                   (x1+dxn,y1-dyn), (x1-dxn,y1+dyn))
-                self.draw.polygon(poly, fill=color)
-                return poly
-            else:
-                return None
+            #if l > 0:
+            dyn, dxn = int(((dx/l)*width/2+sx)), int(((dy/l)*width/2+sy))
+            poly = ((x0-dxn,y0+dyn), (x0+dxn,y0-dyn),
+                    (x1+dxn,y1-dyn), (x1-dxn,y1+dyn))
+            self.draw.polygon(poly, fill=color)
+            return poly
+            #else:
+            #    return None
 
     def floodfill(self, color, xy):
         return floodfill(self.data, xy, color)

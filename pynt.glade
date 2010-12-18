@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <glade-interface>
   <!-- interface-requires gtk+ 2.16 -->
   <!-- interface-naming-policy project-wide -->
@@ -27,6 +27,7 @@
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_menu_new_image"/>
                       </widget>
                     </child>
                     <child>
@@ -58,7 +59,7 @@
                       </widget>
                     </child>
                     <child>
-                      <widget class="GtkMenuItem" id="menu_import">
+                      <widget class="GtkMenuItem" id="menu_file_import_image">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Import image</property>
                         <property name="use_underline">True</property>
@@ -270,6 +271,24 @@
                         <signal name="activate" handler="on_menu_image_resize"/>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkImageMenuItem" id="Next">
+                        <property name="label">gtk-media-next</property>
+                        <property name="visible">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_menu_image_next"/>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkImageMenuItem" id="imagemenuitem2">
+                        <property name="label">gtk-media-previous</property>
+                        <property name="visible">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_menu_image_previous"/>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>
@@ -442,7 +461,7 @@
                   <widget class="GtkSpinButton" id="button_width">
                     <property name="visible">True</property>
                     <property name="editable">False</property>
-                    <property name="invisible_char">&#x25CF;</property>
+                    <property name="invisible_char">●</property>
                     <property name="width_chars">2</property>
                     <property name="adjustment">1 1 99 1 10 10</property>
                     <property name="climb_rate">1</property>
@@ -715,13 +734,24 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkScrolledWindow" id="scrolledwindow">
+              <widget class="GtkVBox" id="vbox10">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="events"></property>
-                <property name="shadow_type">in</property>
                 <child>
                   <placeholder/>
+                </child>
+                <child>
+                  <widget class="GtkScrolledWindow" id="scrolledwindow">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="events"></property>
+                    <property name="shadow_type">in</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </widget>
               <packing>
@@ -753,6 +783,32 @@
                     <property name="visible">True</property>
                     <property name="spacing">10</property>
                     <child>
+                      <widget class="GtkHBox" id="hbox13">
+                        <property name="visible">True</property>
+                        <child>
+                          <widget class="GtkLabel" id="label7">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Page: </property>
+                          </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label_page">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">1/1</property>
+                          </widget>
+                          <packing>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="GtkHBox" id="hbox5">
                         <property name="visible">True</property>
                         <property name="spacing">3</property>
@@ -780,7 +836,7 @@
                       </widget>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="position">0</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
@@ -811,7 +867,7 @@
                       </widget>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="position">1</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                     <child>
@@ -843,7 +899,7 @@
                       </widget>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="position">2</property>
+                        <property name="position">3</property>
                       </packing>
                     </child>
                   </widget>
@@ -917,7 +973,7 @@
                       <widget class="GtkSpinButton" id="pe_spinbutton_red">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="invisible_char">●</property>
                         <property name="width_chars">3</property>
                         <property name="adjustment">0 0 255 1 0 0</property>
                         <property name="climb_rate">1</property>
@@ -964,7 +1020,7 @@
                       <widget class="GtkSpinButton" id="pe_spinbutton_green">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="invisible_char">●</property>
                         <property name="width_chars">3</property>
                         <property name="adjustment">0 0 255 1 10 0</property>
                         <signal name="change_value" handler="on_pe_spinbutton_green_change_value"/>
@@ -1009,7 +1065,7 @@
                       <widget class="GtkSpinButton" id="pe_spinbutton_blue">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="invisible_char">●</property>
                         <property name="width_chars">3</property>
                         <property name="adjustment">0 0 255 1 10 0</property>
                         <signal name="change_value" handler="on_pe_spinbutton_blue_change_value"/>
@@ -1119,7 +1175,6 @@
   <widget class="GtkDialog" id="image_resize_dialog">
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
@@ -1152,7 +1207,7 @@
                       <widget class="GtkSpinButton" id="resize_xstart">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x2022;</property>
+                        <property name="invisible_char">•</property>
                         <property name="adjustment">0 0 10000 1 10 10</property>
                       </widget>
                       <packing>
@@ -1184,7 +1239,7 @@
                       <widget class="GtkSpinButton" id="resize_ystart">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x2022;</property>
+                        <property name="invisible_char">•</property>
                         <property name="adjustment">0 0 10000 1 10 10</property>
                       </widget>
                       <packing>
@@ -1216,7 +1271,7 @@
                       <widget class="GtkSpinButton" id="resize_xwidth">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x2022;</property>
+                        <property name="invisible_char">•</property>
                         <property name="adjustment">9 0 10000 1 10 10</property>
                       </widget>
                       <packing>
@@ -1250,7 +1305,7 @@
                       <widget class="GtkSpinButton" id="resize_ywidth">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x2022;</property>
+                        <property name="invisible_char">•</property>
                         <property name="adjustment">0 0 10000 1 10 10</property>
                       </widget>
                       <packing>
@@ -1336,7 +1391,6 @@
   <widget class="GtkDialog" id="dialog1">
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
