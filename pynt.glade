@@ -22,15 +22,6 @@
                   <widget class="GtkMenu" id="menu1">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkImageMenuItem" id="imagemenuitem1">
-                        <property name="label">gtk-new</property>
-                        <property name="visible">True</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_menu_new_image"/>
-                      </widget>
-                    </child>
-                    <child>
                       <widget class="GtkImageMenuItem" id="menu_load">
                         <property name="label">gtk-open</property>
                         <property name="visible">True</property>
@@ -263,6 +254,15 @@
                   <widget class="GtkMenu" id="menu8">
                     <property name="visible">True</property>
                     <property name="ubuntu_local">True</property>
+                    <child>
+                      <widget class="GtkImageMenuItem" id="imagemenuitem1">
+                        <property name="label">gtk-new</property>
+                        <property name="visible">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_menu_new_image"/>
+                      </widget>
+                    </child>
                     <child>
                       <widget class="GtkMenuItem" id="menu_image_resize">
                         <property name="visible">True</property>

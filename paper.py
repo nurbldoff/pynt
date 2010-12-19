@@ -133,7 +133,7 @@ class PyntPaper(gtk.DrawingArea):
         x, y, w, h = e.area
 
         #print "expose!", "x0:", x0, "y0:", y0, "x1:", x1, "y1:", y1
-        print "expose!", "x:", x, "y:", y, "w:", w, "h:", h
+        #print "expose!", "x:", x, "y:", y, "w:", w, "h:", h
 
         self.update_pixmap((x, y, x+(w//z+1)*z, y+(h//z+1)*z))
         self.window.begin_paint_rect((x,y,w,h))
@@ -319,6 +319,8 @@ class PyntPaper(gtk.DrawingArea):
         if not 0<=event.x<w or not 0<=event.y<h:
             self.emit("coords-changed", (-1, -1))
             print "outside!"
+            self.stack.clear_scratch()
+            self.invalidate()
             # if self.stack.mode is None:
             #     print "Clearing..."
             #     bbox = self.stack.clear_scratch()
@@ -369,7 +371,8 @@ class PyntPaper(gtk.DrawingArea):
                 tmp = self.get_img_bbox(bbox)
                 img_bbox = (tmp[0], tmp[1], tmp[2]+1, tmp[3]+1)
                 tmp = self.stack.get_layer().image.crop(img_bbox)
-                self.brush = PyntBrush(data=tmp, transp_color=self.stack.get_layer().image.transp_color)
+                #self.brush = PyntBrush(data=tmp, transp_color=self.stack.get_layer().image.transp_color)
+                self.brush = PyntBrush(data=tmp, transp_color=self.stack.palette.bgcolor)
 
                 #self.custom_brush = True
                 #bbox = self.stack.clear_scratch()

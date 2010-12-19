@@ -131,9 +131,9 @@ class PyntMain(object):
                "on_redo" : self.on_redo,
                "on_button_palette_prev_clicked" : self.palette_prev,
                "on_button_palette_next_clicked" : self.palette_next,
-               "on_menu_save_activate" : self.on_save_image,
-               "on_menu_load_activate" : self.on_load_image,
-               "on_menu_save_as" : self.on_save_image_as,
+               "on_menu_save_activate" : self.on_save_session,
+               "on_menu_load_activate" : self.on_load_session,
+               "on_menu_save_as" : self.on_save_session_as,
                "on_menu_import_image_activated" : self.on_import_image,
                "on_menu_export_image_activated" : self.on_export_image,
 
@@ -738,6 +738,31 @@ class PyntMain(object):
     def sb_push(self, message):
         pass
 
+    def save_session(self, filename):
+        if not filename.endswith(".pynt"):
+            filename += ".pynt"
+
+        stacks = [PyntData(stack) for stack in self.stacks]
+        f = open(filename, "w")
+        cPickle.dump(stacks, f)
+        f.close()
+        return filename
+
+    def on_save_session(self, widget):
+        if self.save_file is "":
+            self.on_save_session_as(widget)
+        else:
+            self.save_session(self.save_file)
+
+    def on_save_session_as(self, widget):
+        """Save current session as a Pynt file (pickled python object)"""
+        filedir, filename = os.path.split(self.save_file)
+        save_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE, file_dir=filedir,
+                                file_name=filename, file_ext="pynt")
+        if save_file != "":
+            self.save_file = self.save_session(save_file)
+            self.update_window_title()
+
     def on_save_image(self, widget):
         """Save current image as a Pynt file (pickled python object)"""
         if self.save_file is "":
@@ -783,6 +808,32 @@ class PyntMain(object):
             img = self.paper.brush.data
             img.save(brush_file, "PNG", transparency=0)
             self.brush_file = brush_file
+
+
+    def on_load_session(self, widget):
+        filedir, filename = os.path.split(self.save_file)
+        load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN, file_dir=filedir,
+                                file_name=filename, file_ext="pynt")
+        if load_file != "":
+            f = open(load_file, "r")
+            self.save_file = load_file
+            pyntdata = cPickle.load(f)
+            self.stacks = [PyntStack(data=stackdata) for stackdata in pyntdata]
+            self.stack = self.stacks[0]
+            f.close()
+
+            self.paletteview.palette = self.pe_paletteview.palette = self.stack.palette
+            self.paletteview.invalidate_all()
+            self.pe_paletteview.invalidate_all()
+            self.paper.stack = self.stack
+
+            self.paper.invalidate()
+
+            self.update_page_label()
+            self.update_frame_label()
+            self.update_layer_label()
+            self.update_window_title()
+
 
     def on_load_image(self, widget):
         """Load a Pynt image file"""
