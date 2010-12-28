@@ -6,8 +6,12 @@ class PyntImage(object):
     transp_color = 0
     mask_palette = [255,255,255]*256
 
-    def draw_rect(self, color, bbox, fill=None):
-        self.draw.rectangle(bbox, outline=color, fill=fill)
+    def draw_rect(self, color, bbox, width=1, fill=None):
+        #self.draw.rectangle(bbox, outline=color, fill=fill)
+        self.draw_line(color, width, (bbox[0],bbox[1], bbox[2],bbox[1]))
+        self.draw_line(color, width, (bbox[2],bbox[1], bbox[2],bbox[3]))
+        self.draw_line(color, width, (bbox[2],bbox[3], bbox[0],bbox[3]))
+        self.draw_line(color, width, (bbox[0],bbox[3], bbox[0],bbox[1]))
 
     def draw_ellipse(self, color, bbox, fill=None):
         self.draw.ellipse(bbox, outline=color, fill=fill)

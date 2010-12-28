@@ -57,7 +57,7 @@ class PyntPaper(gtk.DrawingArea):
         self.selectionrect = None
 
 
-        #self.keys_pressed = []
+        self.keys_pressed = []
 
         # this is needed to make PyntPaper aware of the scrollbars
         self.set_set_scroll_adjustments_signal("set-scroll-adjustments")
@@ -97,7 +97,7 @@ class PyntPaper(gtk.DrawingArea):
 
         print "Tjoho!"
 
-        #self.connect("key_press_event", self.do_key_press_event)
+        self.connect("key_press_event", self.do_key_press_event)
         #self.connect("key_press_event", self.do_key_press_event)
         w, h = self.window.get_size()
         #w, h = 100,100
@@ -213,15 +213,16 @@ class PyntPaper(gtk.DrawingArea):
 
 
 
-#    def do_key_press_event(self, e):
-#        self.keys_pressed.append(gtk.gdk.keyval_name(e.keyval))
-#        print "keys_pressed:", self.keys_pressed
+    # def do_key_press_event(self, e):
+    #     self.keys_pressed.append(gtk.gdk.keyval_name(e.keyval))
+    #     print "keys_pressed:", self.keys_pressed
 
-#    def do_key_release_event(self, e):
-#        key = gtk.gdk.keyval_name(e.keyval)
-#        if key in self.keys_pressed:
-#            self.keys_pressed.remove(key)
-#            print "keys_pressed:", self.keys_pressed
+    def do_key_release_event(self, e):
+        key = gtk.gdk.keyval_name(e.keyval)
+        print key
+        if key in self.keys_pressed:
+            self.keys_pressed.remove(key)
+            print "keys_pressed:", self.keys_pressed
 
     def do_motion_notify_event(self, e, f=None):
         x, y = int(e.x), int(e.y)
@@ -294,7 +295,8 @@ class PyntPaper(gtk.DrawingArea):
                     self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1))
                 elif self.tool == "rectangle":
                     self.draw_rectangle(color, (self.lx, self.ly, x-self.lx, y-self.ly),
-                                        transient=True, filled=filled)
+                                        width=self.line_width, transient=True,
+                                        filled=filled)
                     new = self.get_img_coord(x, y)
                     old = self.get_img_coord(self.lx, self.ly)
                     self.emit("coords-changed", (new[0]-old[0]+1, new[1]-old[1]+1))
@@ -371,8 +373,8 @@ class PyntPaper(gtk.DrawingArea):
                 tmp = self.get_img_bbox(bbox)
                 img_bbox = (tmp[0], tmp[1], tmp[2]+1, tmp[3]+1)
                 tmp = self.stack.get_layer().image.crop(img_bbox)
-                #self.brush = PyntBrush(data=tmp, transp_color=self.stack.get_layer().image.transp_color)
-                self.brush = PyntBrush(data=tmp, transp_color=self.stack.palette.bgcolor)
+                self.brush = PyntBrush(data=tmp, transp_color=self.stack.get_layer().image.transp_color)
+                #self.brush = PyntBrush(data=tmp, transp_color=self.stack.palette.bgcolor)
 
                 #self.custom_brush = True
                 #bbox = self.stack.clear_scratch()
@@ -454,7 +456,7 @@ class PyntPaper(gtk.DrawingArea):
             tmpbb = self.stack.clear_scratch()
             self.invalidate_img_bbox(tmpbb)
 
-    def draw_rectangle(self, color, rect, transient=False, filled=False):
+    def draw_rectangle(self, color, rect, width=1, transient=False, filled=False):
         x, y, w, h = rect
         if x+h<self.get_xlim() and y+h<self.get_ylim():
             startx, starty = self.get_img_coord(x, y)
@@ -463,7 +465,7 @@ class PyntPaper(gtk.DrawingArea):
                 fill=color
             else:
                 fill=None
-            coords = self.stack.draw_rect(color, (startx, starty, endx, endy), fill, transient)
+            coords = self.stack.draw_rect(color, (startx, starty, endx, endy), width=width, fill=fill, transient=transient)
             if coords is not None:
                 self.invalidate_img_bbox(coords)
 

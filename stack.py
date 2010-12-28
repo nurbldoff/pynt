@@ -102,8 +102,9 @@ class PyntStack(object):
         bbox = l.image.getbbox()
         part = l.image.crop(bbox)
         part.load()
-        self.changes.append(PyntChange(part, (bbox[0], bbox[1]), l))
-        self.get_layer().image.erase(bbox)
+        if not bbox is None:
+            self.changes.append(PyntChange(part, (bbox[0], bbox[1]), l))
+            self.get_layer().image.erase(bbox)
         return bbox
 
     def get_layer_stats(self):
@@ -293,9 +294,9 @@ class PyntStack(object):
             self.last_rect_bbox = bbox
             return total_bbox
 
-    def draw_rect(self, color, bbox, fill=None, transient=False):
+    def draw_rect(self, color, bbox, width=1, fill=None, transient=False):
         if not transient:
-            self.scratch.image.draw_rect(color, bbox, fill)
+            self.scratch.image.draw_rect(color, bbox, width=width, fill=fill)
         else:
             old_bbox = self.last_rect_bbox
             bbox = make_bbox(bbox)
@@ -305,7 +306,7 @@ class PyntStack(object):
                 total_bbox = combine_bbox(old_bbox, new_bbox)
             else:
                 total_bbox = new_bbox
-            self.scratch.image.draw_rect(color, bbox, fill)
+            self.scratch.image.draw_rect(color, bbox, width=width, fill=fill)
             self.last_rect_bbox = new_bbox
             return total_bbox
 
