@@ -139,6 +139,7 @@ class PyntMain(object):
 
                #"on_pe_spinbutton_red_change_value" : self.on_pe_color_edited,
                "on_menu_new_image" : self.on_new_image,
+               "on_menu_delete_image" : self.on_delete_image,
                "on_pe_button_undo_clicked" : self.on_pe_button_undo,
                "on_image_current_page_changed" : self.on_page_changed,
                "on_menu_image_next" : self.on_image_next,
@@ -373,6 +374,12 @@ class PyntMain(object):
         self.stacks.append(stack)
         self.switch_stack(stack)
 
+    def on_delete_image(self, widget):
+        if len(self.stacks) > 1:
+            stack = self.stack
+            prevstack = self.stacks[self.stacks.index(stack)-1]
+            self.stacks.remove(stack)
+            self.switch_stack(prevstack)
 
     def on_image_previous(self, widget):
         print "on_previous_image"
@@ -895,18 +902,19 @@ class PyntMain(object):
 
             print "Image size:", img.size
 
-            self.stack = PyntStack(resolution=img.size, data = img)
-            self.stack.set_palette(lut)
-            self.stack.palette.set_colors(lut)
-            self.paletteview.palette = self.pe_paletteview.palette = self.stack.palette
-            self.paletteview.invalidate_all()
-            self.pe_paletteview.invalidate_all()
+            stack = PyntStack(resolution=img.size, data = img)
+            stack.set_palette(lut)
+            stack.palette.set_colors(lut)
+            #self.paletteview.palette = self.pe_paletteview.palette = self.stack.palette
+            #self.paletteview.invalidate_all()
+            #self.pe_paletteview.invalidate_all()
 
-            self.paper.stack = self.stack
-            self.paper.invalidate()
-
-            self.update_frame_label()
-            self.update_layer_label()
+            #self.paper.stack = self.stack
+            #self.paper.invalidate()
+            self.stacks.append(stack)
+            self.switch_stack(stack)
+            #self.update_frame_label()
+            #self.update_layer_label()
 
 
     def button_press_event(self, widget, event):
