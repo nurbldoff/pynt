@@ -76,7 +76,7 @@ class PyntMain(object):
 
 
         # Drawing area
-	gobject.type_register(PyntPaper)
+        gobject.type_register(PyntPaper)
         print "paper"
 
         self.paper = PyntPaper(self.stack)
@@ -85,6 +85,9 @@ class PyntMain(object):
         #self.image_notebook = self.mainTree.get_widget("image_notebook")
         self.scrolledwindow = self.mainTree.get_widget("scrolledwindow")
         self.scrolledwindow.add(self.paper)
+
+        self.page_notebook = self.mainTree.get_widget("page_notebook")
+        self.layer_notebook = self.mainTree.get_widget("layer_notebook")
 
         self.paper.connect("fgcolor-picked", self.set_fgcolor)
         self.paper.connect("bgcolor-picked", self.set_bgcolor)
@@ -144,6 +147,8 @@ class PyntMain(object):
                "on_image_current_page_changed" : self.on_page_changed,
                "on_menu_image_next" : self.on_image_next,
                "on_menu_image_previous" : self.on_image_previous,
+               "on_page_notebook_switch_page" : self.on_change_image,
+
                }
 
         self.mainTree.signal_autoconnect(dic)
@@ -181,7 +186,7 @@ class PyntMain(object):
 #         self.drawing_area.show()
 
         #palette
-	gobject.type_register(PyntPaletteView)
+        gobject.type_register(PyntPaletteView)
 
         self.vbox_palette = self.mainTree.get_widget("vbox_palette")
 
@@ -373,13 +378,27 @@ class PyntMain(object):
         stack=PyntStack()
         self.stacks.append(stack)
         self.switch_stack(stack)
+        tab_label = gtk.Label("Page %d"%(self.stacks.index(stack)+1))
+        tab_label.show()
+        vbox = gtk.VBox()
+        vbox.show()
+        self.page_notebook.append_page(vbox, tab_label=tab_label)
+        self.page_notebook.set_current_page(self.stacks.index(stack))
+
 
     def on_delete_image(self, widget):
         if len(self.stacks) > 1:
             stack = self.stack
+            n = self.stacks.index(stack)
             prevstack = self.stacks[self.stacks.index(stack)-1]
+            #self.switch_stack(prevstack)
             self.stacks.remove(stack)
-            self.switch_stack(prevstack)
+            self.page_notebook.set_current_page(self.stacks.index(prevstack))
+            self.page_notebook.remove_page(n)
+            for i in range(len(self.stacks)):
+                self.page_notebook.set_tab_label_text(self.page_notebook.get_nth_page(i),
+                                                  "Page %d"%(i+1))
+
 
     def on_image_previous(self, widget):
         print "on_previous_image"
@@ -400,6 +419,16 @@ class PyntMain(object):
         if stack_n < len(self.stacks)-1:
             self.switch_stack(self.stacks[stack_n+1])
             print "Page:" , stack_n+1
+
+    def on_change_image(self, widget, page, page_num):
+        print "on_change_image"
+        #self.image_notebook.prev_page()
+        #self.image_notebook.queue_draw_area(0,0,-1,-1)
+        n = widget.get_current_page()
+        print "page_num:", page_num
+
+        self.switch_stack(self.stacks[page_num])
+        print "Page:" , page_num
 
     def set_fgcolor(self, widget, n):
 

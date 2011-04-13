@@ -265,7 +265,7 @@ class PyntPaper(gtk.DrawingArea):
             else:
                 color = self.stack.palette.bgcolor
         else:
-            if self.tool not in ("colorpicker", "brush"):
+            if self.tool in ("points",):   #("colorpicker", "brush"):
                 self.draw_brush(self.brush, self.stack.palette.fgcolor,
                                 (x, y), transient=True)
             self.emit("coords-changed", self.get_img_coord(x, y))
@@ -321,8 +321,9 @@ class PyntPaper(gtk.DrawingArea):
         if not 0<=event.x<w or not 0<=event.y<h:
             self.emit("coords-changed", (-1, -1))
             print "outside!"
-            self.stack.clear_scratch()
-            self.invalidate()
+            if not self.stack.mode in ("draw_fg", "draw_bg"):
+                self.stack.clear_scratch()
+                self.invalidate()
             # if self.stack.mode is None:
             #     print "Clearing..."
             #     bbox = self.stack.clear_scratch()
