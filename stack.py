@@ -283,7 +283,7 @@ class PyntStack(object):
         else:
             old_bbox = self.last_rect_bbox
             bbox = make_bbox(points)
-            w = round(width+0.5)
+            w = int(round(width+0.5))
             bbox = (bbox[0]-w, bbox[1]-w, bbox[2]+w, bbox[3]+w)
             if old_bbox is not None:
                 self.scratch.image.erase(old_bbox)

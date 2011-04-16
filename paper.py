@@ -207,7 +207,7 @@ class PyntPaper(gtk.DrawingArea):
 
 
         self.stack.clear_scratch()
-        self.window.invalidate_rect((0, 0, w, h), False)
+        self.window.invalidate_rect(gtk.gdk.Rectangle(0, 0, w, h), False)
         #print "dx, dy:", self.dx, self.dy
         self.dx, self.dy = dx, dy
 
@@ -428,7 +428,7 @@ class PyntPaper(gtk.DrawingArea):
             startx, starty = self.get_img_coord(x0, y0)
             endx, endy = self.get_img_coord(x1, y1)
 
-            bbox = self.stack.draw_line(color, width,
+            bbox = self.stack.draw_line(color, int(width),
                                  (startx, starty, endx, endy), transient)
 
             hw = width//2
@@ -573,12 +573,13 @@ class PyntPaper(gtk.DrawingArea):
 
 
 
-# --- Other functions ---
+    # --- Other functions ---
 
     def invalidate_bbox(self, bbox):
         if bbox:
             x0, y0, x1, y1 = bbox
-            self.window.invalidate_rect((x0, y0, x1-x0, y1-y0), False)
+            self.window.invalidate_rect(gtk.gdk.Rectangle(int(x0), int(y0),
+                                                          int(x1-x0), int(y1-y0)), False)
 
     def invalidate_img_bbox(self, bbox):
         #print "invalidate_img_bbox():", self.get_paper_bbox(bbox)
@@ -587,7 +588,7 @@ class PyntPaper(gtk.DrawingArea):
 
     def invalidate(self):
         w, h = self.window.get_size()
-        self.window.invalidate_rect((0, 0, w, h), True)
+        self.window.invalidate_rect(gtk.gdk.Rectangle(0, 0, w, h), True)
 
     def set_zoom(self, zoom):
 
@@ -634,7 +635,7 @@ class PyntPaper(gtk.DrawingArea):
 
             #update the view
             w, h = int(round(self._hadj.page_size)), int(round(self._vadj.page_size))
-            self.window.invalidate_rect((0, 0, w, h), False)
+            self.window.invalidate_rect(gtk.gdk.Rectangle(0, 0, w, h), False)
 
             self.zoom = zoom
             #self._hadj.upper = self.stack.resolution[0]*self.zoom

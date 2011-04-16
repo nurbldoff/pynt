@@ -374,8 +374,12 @@ class PyntMain(object):
         #self.image_notebook.queue_draw_area(0,0,-1,-1)
 
         #print "New page:", n
+        self.add_image()
 
-        stack=PyntStack()
+
+    def add_image(self, stack=None):
+        if stack is None:
+            stack=PyntStack()
         self.stacks.append(stack)
         self.switch_stack(stack)
         tab_label = gtk.Label("Page %d"%(self.stacks.index(stack)+1))
@@ -854,7 +858,13 @@ class PyntMain(object):
             f = open(load_file, "r")
             self.save_file = load_file
             pyntdata = cPickle.load(f)
-            self.stacks = [PyntStack(data=stackdata) for stackdata in pyntdata]
+            self.stacks = []
+            while self.page_notebook.get_n_pages() > 0:
+                self.page_notebook.remove_page(-1)
+            for s in pyntdata:
+                self.add_image(stack=PyntStack(data=s))
+                #self.stacks.append(PyntStack(data=s))
+            #self.stacks = [PyntStack(data=stackdata) for stackdata in pyntdata]
             self.stack = self.stacks[0]
             f.close()
 
