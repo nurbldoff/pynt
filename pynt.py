@@ -148,6 +148,7 @@ class PyntMain(object):
                "on_menu_image_next" : self.on_image_next,
                "on_menu_image_previous" : self.on_image_previous,
                "on_page_notebook_switch_page" : self.on_change_image,
+               "on_layer_notebook_switch_page" : self.on_change_layer,
 
                }
 
@@ -382,27 +383,27 @@ class PyntMain(object):
             stack=PyntStack()
         self.stacks.append(stack)
         self.switch_stack(stack)
-        tab_label = gtk.Label("Page %d"%(self.stacks.index(stack)+1))
-        tab_label.show()
-        vbox = gtk.VBox()
-        vbox.show()
-        self.page_notebook.append_page(vbox, tab_label=tab_label)
-        self.page_notebook.set_current_page(self.stacks.index(stack))
-
+        # tab_label = gtk.Label("Page %d"%(self.stacks.index(stack)+1))
+        # tab_label.show()
+        # vbox = gtk.VBox()
+        # vbox.show()
+        # self.page_notebook.append_page(vbox, tab_label=tab_label)
+        # self.page_notebook.set_current_page(self.stacks.index(stack))
+        self.update_page_notebook()
 
     def on_delete_image(self, widget):
         if len(self.stacks) > 1:
             stack = self.stack
             n = self.stacks.index(stack)
             prevstack = self.stacks[self.stacks.index(stack)-1]
-            #self.switch_stack(prevstack)
+            self.switch_stack(prevstack)
             self.stacks.remove(stack)
-            self.page_notebook.set_current_page(self.stacks.index(prevstack))
-            self.page_notebook.remove_page(n)
-            for i in range(len(self.stacks)):
-                self.page_notebook.set_tab_label_text(self.page_notebook.get_nth_page(i),
-                                                  "Page %d"%(i+1))
-
+            # self.page_notebook.set_current_page(self.stacks.index(prevstack))
+            # self.page_notebook.remove_page(n)
+            # for i in range(len(self.stacks)):
+            #     self.page_notebook.set_tab_label_text(self.page_notebook.get_nth_page(i),
+            #                                       "Page %d"%(i+1))
+            self.update_page_notebook()
 
     def on_image_previous(self, widget):
         print "on_previous_image"
@@ -490,6 +491,40 @@ class PyntMain(object):
         page = self.stacks.index(self.stack)+1
         self.label_page.set_text("%d/%d"%(page, len(self.stacks)))
 
+    def update_page_notebook(self):
+        n = self.page_notebook.get_n_pages()
+        while n < len(self.stacks):
+            vbox = gtk.VBox()
+            vbox.show()
+            self.page_notebook.append_page(vbox)
+            n+=1
+        while n > len(self.stacks):
+            self.page_notebook.remove_page(-1)
+            n-=1
+        for i in range(n):
+            p = self.page_notebook.get_nth_page(i)
+            self.page_notebook.set_tab_label_text(p, "%d"%(i+1))
+        self.page_notebook.set_current_page(self.stacks.index(self.stack))
+
+
+    def update_layer_notebook(self):
+        n = self.layer_notebook.get_n_pages()
+        li, ln = self.stack.get_layer_stats()
+        self.layer_notebook.handler_block_by_func(self.on_change_layer)
+        while n < ln:
+            vbox = gtk.VBox()
+            vbox.show()
+            self.layer_notebook.append_page(vbox)
+            n+=1
+        while n > ln:
+            self.layer_notebook.remove_page(-1)
+            n-=1
+        for i in range(n):
+            p = self.layer_notebook.get_nth_page(n-i-1)
+            self.layer_notebook.set_tab_label_text(p, "%d"%(i+1))
+        self.layer_notebook.set_current_page(li-1)
+        self.layer_notebook.handler_unblock_by_func(self.on_change_layer)
+
     def update_layer_label(self):
         stats = self.stack.get_layer_stats()
         self.label_layer.set_text("%d/%d"%stats)
@@ -531,13 +566,16 @@ class PyntMain(object):
         self.next_layer()
         self.update_layer_label()
         self.update_frame_label()
+        self.update_layer_notebook()
 
     def delete_layer(self):
         bbox = self.stack.get_active_bbox()
         self.stack.delete_layer()
+
         self.update_layer_label()
         self.update_frame_label()
         self.paper.invalidate_img_bbox(bbox)
+        self.update_layer_notebook()
 
     def on_join_layers(self, w):
         bbox = self.stack.get_active_bbox()
@@ -545,6 +583,7 @@ class PyntMain(object):
             self.update_layer_label()
             self.update_frame_label()
             self.paper.invalidate_img_bbox(bbox)
+            self.update_layer_notebook()
 
     def set_busy_pointer(self, state):
         pass
@@ -552,13 +591,16 @@ class PyntMain(object):
     def on_layer_up(self, w):
         self.stack.move_layer_up()
         self.next_layer()
+
         bbox = self.stack.get_active_bbox()
         if bbox is not None:
             self.paper.invalidate_bbox(self.paper.get_paper_bbox(bbox))
 
+
     def on_layer_down(self, w):
         self.stack.move_layer_down()
         self.prev_layer()
+
         bbox = self.stack.get_active_bbox()
         if bbox is not None:
             self.paper.invalidate_bbox(self.paper.get_paper_bbox(bbox))
@@ -577,6 +619,7 @@ class PyntMain(object):
                 self.paper.invalidate_bbox(self.paper.get_paper_bbox(combined_bbox))
             self.update_layer_label()
             self.update_frame_label()
+            #self.update_layer_notebook()
 
     def prev_layer(self):
         bbox1=self.stack.get_active_bbox()
@@ -587,6 +630,19 @@ class PyntMain(object):
                 self.paper.invalidate_bbox(self.paper.get_paper_bbox(combined_bbox))
             self.update_layer_label()
             self.update_frame_label()
+            self.update_layer_notebook()
+
+    def on_change_layer(self, widget, page, page_num):
+        print "on_change_layer"
+        #self.image_notebook.prev_page()
+        #self.image_notebook.queue_draw_area(0,0,-1,-1)
+        i = widget.get_current_page()
+        n = widget.get_n_pages()
+        print "page_num:", page_num
+        self.stack.set_active_layer(n-page_num-1)
+        print "Page:" , page_num
+        self.update_layer_label()
+        self.update_frame_label()
 
     def next_frame(self):
         bbox1=self.stack.get_active_bbox()
@@ -597,6 +653,7 @@ class PyntMain(object):
                 self.paper.invalidate_bbox(self.paper.get_paper_bbox(combined_bbox))
         self.update_layer_label()
         self.update_frame_label()
+        self.update_layer_notebook()
 
     def prev_frame(self):
         bbox1=self.stack.get_active_bbox()
@@ -607,7 +664,7 @@ class PyntMain(object):
                 self.paper.invalidate_bbox(self.paper.get_paper_bbox(combined_bbox))
         self.update_layer_label()
         self.update_frame_label()
-
+        self.update_layer_notebook()
 
 
     def image_scrolled(self):
