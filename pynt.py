@@ -902,7 +902,7 @@ class PyntMain(object):
             if extension == "":
                 brush_file = path + ".png"
             #img = self.stack.get_area(*((0, 0) + self.stack.resolution))
-            img = self.paper.brush.data
+            img = self.paper.brush.data  #.convert("RGB")
             img.save(brush_file, "PNG", transparency=0)
             self.brush_file = brush_file
 

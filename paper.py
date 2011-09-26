@@ -650,7 +650,8 @@ class PyntPaper(gtk.DrawingArea):
         self.brush = PyntBrush(size=(width, width))
 
     def update_pixmap(self, bbox):
-        wtot, htot = self.stack.resolution[0]*self.zoom, self.stack.resolution[1]*self.zoom
+        wtot = self.stack.resolution[0] * self.zoom
+        htot = self.stack.resolution[1] * self.zoom
         #print "update_pixmap:", bbox
 
         x0, y0, x1, y1 = bbox
@@ -665,28 +666,33 @@ class PyntPaper(gtk.DrawingArea):
         w, h = ((x1-x0)//z)*z, ((y1-y0)//z)*z
         #w, h = min((wtot-x0)*z, ((x1-x0)//z)*z), min((htot-y0), ((y1-y0)//z)*z)
         #w, h = int(self.zoom*((x1-x0)/self.zoom+0.5)), int(self.zoom*((y1-y0)/self.zoom+0.5))
+        if w > 0 and h > 0:
+            print "updating pixmap:", w, h
 
-        #print "updating pixmap:", w, h
+            if self.zoom != 1:
+                img_bbox = self.get_img_bbox((x0, y0, x0+w, y0+h))
+            else:
+                img_bbox = (x0+dx, y0+dy, x0+w+dx, y0+h+dy)
+            print "update  bbox:", img_bbox
+            #if self.zoom < 1:
+            #    filter = Image.ANTIALIAS
+            #else:
+            #    filter = Image.NEAREST
+            filter = Image.NEAREST
+            area = self.stack.get_area(*img_bbox)
+            imagedata = area.convert("RGBA")
+            imagedata = imagedata.resize((w, h), filter)
+            imagedata = imagedata.tostring()
+            if w < x1 or h < y1:
+                self.pixmap.draw_rectangle(self.gc, True, 0, 0, *self.pixmap.get_size())
 
-        if self.zoom != 1:
-            img_bbox = self.get_img_bbox((x0, y0, x0+w, y0+h))
+            self.pixmap.draw_rgb_32_image(self.gc, x0, y0,
+                                          w, h, gtk.gdk.RGB_DITHER_NONE,
+                                          imagedata, rowstride=w*4)
+
+            return imagedata
         else:
-            img_bbox = (x0+dx, y0+dy, x0+w+dx, y0+h+dy)
-
-        #if self.zoom < 1:
-        #    filter = Image.ANTIALIAS
-        #else:
-        #    filter = Image.NEAREST
-        filter = Image.NEAREST
-        imagedata = self.stack.get_area(*img_bbox).convert("RGBA").resize((w, h), filter).tostring()
-        if w < x1 or h < y1:
-            self.pixmap.draw_rectangle(self.gc, True, 0, 0, *self.pixmap.get_size())
-
-        self.pixmap.draw_rgb_32_image(self.gc, x0, y0,
-                                      w, h, gtk.gdk.RGB_DITHER_NONE,
-                                      imagedata, rowstride=w*4)
-
-        return imagedata
+            return None
 
     def get_visible_size(self):
         return self.window.get_size()
