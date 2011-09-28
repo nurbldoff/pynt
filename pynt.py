@@ -956,7 +956,22 @@ class PyntMain(object):
             self.pe_paletteview.invalidate_all()
             self.paper.stack = self.stack
 
-            self.paper.invalidate()
+            self.scrolledwindow.remove(self.paper)
+            self.paper = PyntPaper(self.stack)
+            print "done"
+
+            #self.image_notebook = self.mainTree.get_widget("image_notebook")
+            self.scrolledwindow.add(self.paper)
+
+            self.paper.connect("fgcolor-picked", self.set_fgcolor)
+            self.paper.connect("bgcolor-picked", self.set_bgcolor)
+            self.paper.connect("coords-changed", self.set_coords)
+            self.paper.connect("set-tool", lambda w, t: self.set_tool(t))
+
+            #self.set_width(1)
+            self.paper.show()
+
+            #self.paper.invalidate()
 
             self.update_frame_label()
             self.update_layer_label()
