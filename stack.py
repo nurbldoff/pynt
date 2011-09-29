@@ -3,7 +3,8 @@ import Image, ImageDraw, ImageChops
 
 from image import PyntImage, PyntImagePalette, PyntBrush
 from palette import PyntPalette
-from utils import make_bbox, combine_bbox, floodfill
+from utils import make_bbox, combine_bbox, floodfill, bucketfill
+
 
 class PyntChange(object):
     """An undoable operation"""
@@ -137,7 +138,6 @@ class PyntStack(object):
                           visible=visible, anim=anim)
             self.layers.insert(self.active_layer+1, l)
         return l
-
 
     def delete_layer(self, n=None):
         if n is None:
@@ -278,12 +278,12 @@ class PyntStack(object):
         if not transient:
             self.scratch.image.draw_line(color, width, points)
             bbox = make_bbox(points)
-            w = round(width+0.5)
+            w = int(round(width+0.5))
             return (bbox[0]-w, bbox[1]-w, bbox[2]+w, bbox[3]+w)
         else:
             old_bbox = self.last_rect_bbox
             bbox = make_bbox(points)
-            w = round(width+0.5)
+            w = int(round(width+0.5))
             bbox = (bbox[0]-w, bbox[1]-w, bbox[2]+w, bbox[3]+w)
             if old_bbox is not None:
                 self.scratch.image.erase(old_bbox)
@@ -365,6 +365,7 @@ class PyntStack(object):
         self.scratch.image.set_palette(colors)
 
     def floodfill2(self, color, xy):
+        print "floodfill2"
         self.scratch.image.data = self.get_layer().image.data.copy()
         #self.scratch.image.data.load()
         #self.scratch.image.data.putalpha(255)  #why doesn't this work?
@@ -380,7 +381,7 @@ class PyntStack(object):
         if self.mode == "erase":
             #make sure we're filling with a different color from the initial pixel
             color = 255 - tmp.getpixel(xy)
-        mask = floodfill(tmp, xy, color)
+        mask = bucketfill(tmp, xy, color)
         if mask is not None:
             bbox = mask.getbbox()
             if bbox is not None:

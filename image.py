@@ -1,6 +1,9 @@
 import math, zlib
 import Image, ImageDraw, ImageChops
 
+from utils import floodfill, bucketfill
+
+
 class PyntImage(object):
     """Abstract class for images: only for subclassing"""
     transp_color = 0
@@ -47,7 +50,7 @@ class PyntImage(object):
             #    return None
 
     def floodfill(self, color, xy):
-        return floodfill(self.data, xy, color)
+        return bucketfill(self.data, xy, color)
 
     def crop(self, bbox):
         tmp = self.data.crop(bbox)

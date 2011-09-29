@@ -426,7 +426,7 @@ class PyntPaper(gtk.DrawingArea):
             #print "drawing line:", bbox, color
             startx, starty = self.get_img_coord(x0, y0)
             endx, endy = self.get_img_coord(x1, y1)
-
+            print "draw_line:", startx, starty, endx, endy
             bbox = self.stack.draw_line(color, width,
                                  (startx, starty, endx, endy), transient)
 
@@ -544,7 +544,7 @@ class PyntPaper(gtk.DrawingArea):
         return self.stack.resolution[1]*self.zoom
 
     def get_img_coord(self, x, y):
-        return ((x+self.dx)//self.zoom, (y+self.dy)//self.zoom)
+        return (int(x+self.dx)//self.zoom, int(y+self.dy)//self.zoom)
 
     def get_img_bbox(self, bbox):
         z = self.zoom
@@ -576,7 +576,7 @@ class PyntPaper(gtk.DrawingArea):
 
     def invalidate_bbox(self, bbox):
         if bbox:
-            x0, y0, x1, y1 = bbox
+            x0, y0, x1, y1 = map(int, bbox)
             self.window.invalidate_rect((x0, y0, x1-x0, y1-y0), False)
 
     def invalidate_img_bbox(self, bbox):
