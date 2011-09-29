@@ -381,7 +381,7 @@ class PyntStack(object):
         if self.mode == "erase":
             #make sure we're filling with a different color from the initial pixel
             color = 255 - tmp.getpixel(xy)
-        mask = bucketfill(tmp, xy, color)
+        mask = floodfill(tmp, xy, color)
         if mask is not None:
             bbox = mask.getbbox()
             if bbox is not None:

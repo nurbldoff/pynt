@@ -55,7 +55,7 @@ class PyntImage(object):
                 return None
 
     def floodfill(self, color, xy):
-        return bucketfill(self.data, xy, color)
+        return floodfill(self.data, xy, color)
 
     def crop(self, bbox):
         tmp = self.data.crop(bbox)

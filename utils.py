@@ -35,6 +35,7 @@ def get_tilt(event_data):
 def bucketfill(image, pt, color):
     print "BUCKETFILL!"
     startX, startY = pt
+    width, height = image.size
     pixelStack = [(startX, startY)]
     pixel = image.load()
     mask = Image.new("L", image.size, 0)
@@ -43,38 +44,46 @@ def bucketfill(image, pt, color):
     startColor = pixel[startX, startY]
 
     if startColor == color:
+        print "Same color!"
         return
 
     while pixelStack:
         newPos = pixelStack.pop()
         x, y = newPos
+        print "position:", x, y
         while y > 0 and pixel[x, y] == startColor:
             y -= 1
-        reachLeft = False
-        reachRight = False
-        while (y < image.height-1) and (pixel[x, y] == startColor):
-            pixel[x, y] = color
+        y+=1
+        reachLeft = reachRight = False
+        while (y < height-1) and (pixel[x, y] == startColor):
+            print "y:", y
             mask_pixel[x, y] = 255
             if x > 0:
                 if pixel[x, y] == startColor:
                     if not reachLeft:
-                        pixelStack.push((x - 1, y))
+                        print "append left: ",x-1, y
+                        pixelStack.append((x - 1, y))
                         reachLeft = True
                 elif reachLeft:
                     reachLeft = False
-            if x < canvasWidth-1:
+            if x < width-1:
                 if pixel[x, y] == startColor:
                     if not reachRight:
-                        pixelStack.push((x + 1, y))
+                        print "append right: ",x+1, y
+                        pixelStack.append((x + 1, y))
                         reachRight = True
                 elif reachRight:
                     reachRight = False
+            pixel[x, y] = color
             y += 1
     return mask
 
 def floodfill(image, xy, value, border=None):
     """Fill bounded region. """
     # This function is from PIL, but modified to return a bit mask too."
+
+    # NB: It would probably be faster to only make the mask and then blit
+    # the color through it at the end.
 
     mask = Image.new("L", image.size, 0)
     mask_pixel = mask.load()
