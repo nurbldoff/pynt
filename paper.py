@@ -207,7 +207,7 @@ class PyntPaper(gtk.DrawingArea):
 
 
         self.stack.clear_scratch()
-        self.window.invalidate_rect((0, 0, w, h), False)
+        self.window.invalidate_rect(gtk.gdk.Rectangle(0, 0, w, h), False)
         #print "dx, dy:", self.dx, self.dy
         self.dx, self.dy = dx, dy
 
@@ -265,7 +265,7 @@ class PyntPaper(gtk.DrawingArea):
             else:
                 color = self.stack.palette.bgcolor
         else:
-            if self.tool not in ("colorpicker", "brush"):
+            if self.tool in ("points",):   #("colorpicker", "brush"):
                 self.draw_brush(self.brush, self.stack.palette.fgcolor,
                                 (x, y), transient=True)
             self.emit("coords-changed", self.get_img_coord(x, y))
@@ -321,8 +321,9 @@ class PyntPaper(gtk.DrawingArea):
         if not 0<=event.x<w or not 0<=event.y<h:
             self.emit("coords-changed", (-1, -1))
             print "outside!"
-            self.stack.clear_scratch()
-            self.invalidate()
+            if not self.stack.mode in ("draw_fg", "draw_bg"):
+                self.stack.clear_scratch()
+                self.invalidate()
             # if self.stack.mode is None:
             #     print "Clearing..."
             #     bbox = self.stack.clear_scratch()
@@ -426,8 +427,9 @@ class PyntPaper(gtk.DrawingArea):
             #print "drawing line:", bbox, color
             startx, starty = self.get_img_coord(x0, y0)
             endx, endy = self.get_img_coord(x1, y1)
+
             print "draw_line:", startx, starty, endx, endy
-            bbox = self.stack.draw_line(color, width,
+            bbox = self.stack.draw_line(color, int(width),
                                  (startx, starty, endx, endy), transient)
 
             hw = width//2
@@ -572,7 +574,7 @@ class PyntPaper(gtk.DrawingArea):
 
 
 
-# --- Other functions ---
+    # --- Other functions ---
 
     def invalidate_bbox(self, bbox):
         if bbox:
@@ -586,7 +588,7 @@ class PyntPaper(gtk.DrawingArea):
 
     def invalidate(self):
         w, h = self.window.get_size()
-        self.window.invalidate_rect((0, 0, w, h), True)
+        self.window.invalidate_rect(gtk.gdk.Rectangle(0, 0, w, h), True)
 
     def set_zoom(self, zoom):
 
@@ -633,7 +635,7 @@ class PyntPaper(gtk.DrawingArea):
 
             #update the view
             w, h = int(round(self._hadj.page_size)), int(round(self._vadj.page_size))
-            self.window.invalidate_rect((0, 0, w, h), False)
+            self.window.invalidate_rect(gtk.gdk.Rectangle(0, 0, w, h), False)
 
             self.zoom = zoom
             #self._hadj.upper = self.stack.resolution[0]*self.zoom
@@ -648,7 +650,8 @@ class PyntPaper(gtk.DrawingArea):
         self.brush = PyntBrush(size=(width, width))
 
     def update_pixmap(self, bbox):
-        wtot, htot = self.stack.resolution[0]*self.zoom, self.stack.resolution[1]*self.zoom
+        wtot = self.stack.resolution[0] * self.zoom
+        htot = self.stack.resolution[1] * self.zoom
         #print "update_pixmap:", bbox
 
         x0, y0, x1, y1 = bbox
@@ -663,28 +666,33 @@ class PyntPaper(gtk.DrawingArea):
         w, h = ((x1-x0)//z)*z, ((y1-y0)//z)*z
         #w, h = min((wtot-x0)*z, ((x1-x0)//z)*z), min((htot-y0), ((y1-y0)//z)*z)
         #w, h = int(self.zoom*((x1-x0)/self.zoom+0.5)), int(self.zoom*((y1-y0)/self.zoom+0.5))
+        if w > 0 and h > 0:
+            print "updating pixmap:", w, h
 
-        #print "updating pixmap:", w, h
+            if self.zoom != 1:
+                img_bbox = self.get_img_bbox((x0, y0, x0+w, y0+h))
+            else:
+                img_bbox = (x0+dx, y0+dy, x0+w+dx, y0+h+dy)
+            print "update  bbox:", img_bbox
+            #if self.zoom < 1:
+            #    filter = Image.ANTIALIAS
+            #else:
+            #    filter = Image.NEAREST
+            filter = Image.NEAREST
+            area = self.stack.get_area(*img_bbox)
+            imagedata = area.convert("RGBA")
+            imagedata = imagedata.resize((w, h), filter)
+            imagedata = imagedata.tostring()
+            if w < x1 or h < y1:
+                self.pixmap.draw_rectangle(self.gc, True, 0, 0, *self.pixmap.get_size())
 
-        if self.zoom != 1:
-            img_bbox = self.get_img_bbox((x0, y0, x0+w, y0+h))
+            self.pixmap.draw_rgb_32_image(self.gc, x0, y0,
+                                          w, h, gtk.gdk.RGB_DITHER_NONE,
+                                          imagedata, rowstride=w*4)
+
+            return imagedata
         else:
-            img_bbox = (x0+dx, y0+dy, x0+w+dx, y0+h+dy)
-
-        #if self.zoom < 1:
-        #    filter = Image.ANTIALIAS
-        #else:
-        #    filter = Image.NEAREST
-        filter = Image.NEAREST
-        imagedata = self.stack.get_area(*img_bbox).convert("RGBA").resize((w, h), filter).tostring()
-        if w < x1 or h < y1:
-            self.pixmap.draw_rectangle(self.gc, True, 0, 0, *self.pixmap.get_size())
-
-        self.pixmap.draw_rgb_32_image(self.gc, x0, y0,
-                                      w, h, gtk.gdk.RGB_DITHER_NONE,
-                                      imagedata, rowstride=w*4)
-
-        return imagedata
+            return None
 
     def get_visible_size(self):
         return self.window.get_size()

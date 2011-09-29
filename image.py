@@ -11,10 +11,13 @@ class PyntImage(object):
 
     def draw_rect(self, color, bbox, width=1, fill=None):
         #self.draw.rectangle(bbox, outline=color, fill=fill)
-        self.draw_line(color, width, (bbox[0],bbox[1], bbox[2],bbox[1]))
-        self.draw_line(color, width, (bbox[2],bbox[1], bbox[2],bbox[3]))
-        self.draw_line(color, width, (bbox[2],bbox[3], bbox[0],bbox[3]))
-        self.draw_line(color, width, (bbox[0],bbox[3], bbox[0],bbox[1]))
+        if fill:
+            self.draw.rectangle(bbox, fill=fill)
+        else:
+            self.draw_line(color, width, (bbox[0],bbox[1], bbox[2],bbox[1]))
+            self.draw_line(color, width, (bbox[2],bbox[1], bbox[2],bbox[3]))
+            self.draw_line(color, width, (bbox[2],bbox[3], bbox[0],bbox[3]))
+            self.draw_line(color, width, (bbox[0],bbox[3], bbox[0],bbox[1]))
 
     def draw_ellipse(self, color, bbox, fill=None):
         self.draw.ellipse(bbox, outline=color, fill=fill)
@@ -33,21 +36,23 @@ class PyntImage(object):
             else:
                 self.draw.line(bbox, fill=color)
         else:
-            dx, dy = x1-x0, y1-y0
+            dx, dy = x1 - x0, y1 - y0
             if dx == dy == 0:
-                xy = (x0-width/2, y0-width/2, x1+width/2, y1+width/2)
-                self.draw.ellipse(xy,fill)
+                xy = (x0 - width / 2, y0 - width / 2,
+                      x1 + width / 2, y1 + width / 2)
+                self.draw.ellipse(xy, fill=color)
             l = math.sqrt(dx**2 + dy**2)
-            sx = .5*((dx > 0 and 2) - 1)
-            sy = .5*((dy > 0 and 2) - 1)
-            #if l > 0:
-            dyn, dxn = int(((dx/l)*width/2+sx)), int(((dy/l)*width/2+sy))
-            poly = ((x0-dxn,y0+dyn), (x0+dxn,y0-dyn),
-                    (x1+dxn,y1-dyn), (x1-dxn,y1+dyn))
-            self.draw.polygon(poly, fill=color)
-            return poly
-            #else:
-            #    return None
+            if l > 0:
+                sx = .5 * ((dx > 0 and 2) - 1)
+                sy = .5 * ((dy > 0 and 2) - 1)
+                dyn, dxn = int(((dx / l) * width / 2 + sx)), \
+                    int(((dy / l) * width / 2 + sy))
+                poly = ((x0 - dxn, y0 + dyn), (x0 + dxn, y0 - dyn),
+                        (x1 + dxn, y1 - dyn), (x1 - dxn, y1 + dyn))
+                self.draw.polygon(poly, fill=color)
+                return poly
+            else:
+                return None
 
     def floodfill(self, color, xy):
         return bucketfill(self.data, xy, color)
