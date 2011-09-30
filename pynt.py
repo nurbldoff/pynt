@@ -111,17 +111,27 @@ class PyntMain(object):
                "on_button_points_clicked" : lambda w: self.set_tool("points"),
                "on_button_pencil_clicked" : lambda w: self.set_tool("pencil"),
                "on_button_line_clicked" : lambda w: self.set_tool("line"),
-               "on_button_rectangle_clicked" : lambda w: self.set_tool("rectangle"),
-               "on_button_floodfill_clicked" : lambda w: self.set_tool("floodfill"),
-               "on_button_ellipse_clicked" : lambda w: self.set_tool("ellipse"),
+               "on_button_rectangle_clicked" : lambda w:
+                         self.set_tool("rectangle"),
+               "on_button_floodfill_clicked" :
+                         lambda w: self.set_tool("floodfill"),
+               "on_button_ellipse_clicked" :
+                         lambda w: self.set_tool("ellipse"),
                "on_button_brush_clicked" : lambda w: self.set_tool("brush"),
-               "on_button_colorpicker_clicked" : lambda w: self.set_tool("colorpicker"),
-               "on_button_width_value_changed" : lambda w: self.set_width(w.get_value_as_int()),
-               "on_menu_brush_hflip" : lambda w: self.paper.brush.flip(vertically=False),
-               "on_menu_brush_vflip" : lambda w: self.paper.brush.flip(vertically=True),
-               "on_menu_brush_rotate_plus90" : lambda w: self.paper.brush.rotate(90),
-               "on_menu_brush_rotate_minus90" : lambda w: self.paper.brush.rotate(-90),
-               "on_brush_solid_color_toggle" : self.on_brush_solid_color_toggle,
+               "on_button_colorpicker_clicked" :
+                         lambda w: self.set_tool("colorpicker"),
+               "on_button_width_value_changed" :
+                         lambda w: self.set_width(w.get_value_as_int()),
+               "on_menu_brush_hflip" : lambda w:
+                         self.paper.brush.flip(vertically=False),
+               "on_menu_brush_vflip" : lambda w:
+                         self.paper.brush.flip(vertically=True),
+               "on_menu_brush_rotate_plus90" : lambda w:
+                         self.paper.brush.rotate(90),
+               "on_menu_brush_rotate_minus90" : lambda w:
+                         self.paper.brush.rotate(-90),
+               "on_brush_solid_color_toggle" :
+                         self.on_brush_solid_color_toggle,
                "on_menu_brush_export" : self.on_export_brush,
                "on_menu_image_resize" : self.on_menu_image_resize,
                "on_menu_clear" : self.on_clear_layer,
@@ -221,25 +231,26 @@ class PyntMain(object):
         #self.pe_r_adj.set_all(value=0, lower=0, upper=255, step_increment=1, page_increment=1, page_size=0)
         #self.pe_g_adj.set_all(value=0, lower=0, upper=255, step_increment=1, page_increment=1, page_size=0)
         #self.pe_b_adj.set_all(value=0, lower=0, upper=255, step_increment=1, page_increment=1, page_size=0)
-        self.pe_r_handlerid = self.pe_r_adj.connect("value-changed", self.on_pe_color_edited)
-        self.pe_g_handlerid = self.pe_g_adj.connect("value-changed", self.on_pe_color_edited)
-        self.pe_b_handlerid = self.pe_b_adj.connect("value-changed", self.on_pe_color_edited)
-
-        self.pe_paletteview = PyntPaletteView(palette=self.stack.palette, columns=16, pages=1)
+        self.pe_r_handlerid = self.pe_r_adj.connect("value-changed",
+                                                    self.on_pe_color_edited)
+        self.pe_g_handlerid = self.pe_g_adj.connect("value-changed",
+                                                    self.on_pe_color_edited)
+        self.pe_b_handlerid = self.pe_b_adj.connect("value-changed",
+                                                    self.on_pe_color_edited)
+        self.pe_paletteview = PyntPaletteView(palette = self.stack.palette,
+                                              columns = 16, pages = 1)
         #self.pe_paletteview.connect("color_changed", self.on_color_changed)
         self.pe_paletteview.connect("fgcolor_picked", self.set_fgcolor)
         self.pe_paletteview.connect("bgcolor_picked", self.set_bgcolor)
-
-
 
         self.pe_vbox_main.pack_end(self.pe_paletteview)
         self.pe_paletteview.show()
         #self.palette_editor.show()
 
-
         # menu
         self.menu_animated = self.mainTree.get_widget("menu_animated")
-        self.menu_layer_visible = self.mainTree.get_widget("menu_layer_visible")
+        self.menu_layer_visible = \
+            self.mainTree.get_widget("menu_layer_visible")
 
         # statusbarv stuff
         self.label_page = self.mainTree.get_widget("label_page")
@@ -281,7 +292,8 @@ class PyntMain(object):
             self.hadjustment.get_upper(), self.hadjustment.get_page_size()
         vadj_min, vadj_max, vadj_page = self.vadjustment.get_lower(), \
             self.vadjustment.get_upper(), self.vadjustment.get_page_size()
-        if x >= 0 and x < self.view.get_xlim() and y >= 0 and y < self.view.get_ylim():
+        if all((x >= 0, x < self.view.get_xlim(), y >= 0,
+                y < self.view.get_ylim())):
             hmiddle = x
             vmiddle = y
         else:
@@ -291,15 +303,15 @@ class PyntMain(object):
         zo = self.view.zoom
 
         if self.view.set_zoom(z):
-            self.hadjustment.set_value(int(hmiddle*(z/zo)-hadj_page/2))
-            self.vadjustment.set_value(int(vmiddle*(z/zo))-vadj_page/2)
-
+            self.hadjustment.set_value(int(hmiddle * (z / zo) - hadj_page / 2))
+            self.vadjustment.set_value(int(vmiddle * (z / zo) - vadj_page / 2))
 
     def set_coords(self, widget, coords):
         self.label_coords.set_text("(%d, %d)"%coords)
 
     def on_menu_image_resize(self, widget):
-        self.image_resize_dialog = self.resizeTree.get_widget("image_resize_dialog")
+        self.image_resize_dialog = \
+            self.resizeTree.get_widget("image_resize_dialog")
         self.image_resize_dialog.run()
 
 
@@ -312,7 +324,9 @@ class PyntMain(object):
         Update the palette views and palette upon a color edit.
         """
 
-        color = (int(self.pe_r_adj.get_value()), int(self.pe_g_adj.get_value()), int(self.pe_b_adj.get_value()))
+        color = (int(self.pe_r_adj.get_value()),
+                 int(self.pe_g_adj.get_value()),
+                 int(self.pe_b_adj.get_value()))
         self.stack.palette.set_color(color)
         self.pe_paletteview.color_edited(color)
         #invalidate_color(self.stack.palette.fgcolor)
@@ -354,7 +368,8 @@ class PyntMain(object):
         self.paletteview.show()
 
         self.pe_vbox_main.remove(self.pe_paletteview)
-        self.pe_paletteview = PyntPaletteView(palette=self.stack.palette, columns=16, pages=1)
+        self.pe_paletteview = PyntPaletteView(palette=self.stack.palette,
+                                              columns=16, pages=1)
         self.pe_paletteview.connect("fgcolor_picked", self.set_fgcolor)
         self.pe_paletteview.connect("bgcolor_picked", self.set_bgcolor)
         self.pe_vbox_main.pack_end(self.pe_paletteview)
@@ -380,7 +395,7 @@ class PyntMain(object):
 
     def add_image(self, stack=None):
         if stack is None:
-            stack=PyntStack()
+            stack = PyntStack()
         self.stacks.append(stack)
         self.switch_stack(stack)
         # tab_label = gtk.Label("Page %d"%(self.stacks.index(stack)+1))
@@ -395,7 +410,7 @@ class PyntMain(object):
         if len(self.stacks) > 1:
             stack = self.stack
             n = self.stacks.index(stack)
-            prevstack = self.stacks[self.stacks.index(stack)-1]
+            prevstack = self.stacks[self.stacks.index(stack) - 1]
             self.switch_stack(prevstack)
             self.stacks.remove(stack)
             # self.page_notebook.set_current_page(self.stacks.index(prevstack))
@@ -412,8 +427,8 @@ class PyntMain(object):
         stack_n = self.stacks.index(self.stack)
         print "stack_n:" , stack_n
         if stack_n > 0:
-            self.switch_stack(self.stacks[stack_n-1])
-            print "Page:" , stack_n-1
+            self.switch_stack(self.stacks[stack_n - 1])
+            print "Page:" , stack_n - 1
 
     def on_image_next(self, widget):
         print "on_next_image"
@@ -421,9 +436,9 @@ class PyntMain(object):
         #self.image_notebook.queue_draw_area(0,0,-1,-1)
         stack_n = self.stacks.index(self.stack)
         print "stack_n:" , stack_n
-        if stack_n < len(self.stacks)-1:
-            self.switch_stack(self.stacks[stack_n+1])
-            print "Page:" , stack_n+1
+        if stack_n < len(self.stacks) - 1:
+            self.switch_stack(self.stacks[stack_n + 1])
+            print "Page:" , stack_n + 1
 
     def on_change_image(self, widget, page, page_num):
         print "on_change_image"
@@ -443,7 +458,8 @@ class PyntMain(object):
             if self.pe_toggle_spread.get_active():
                 if self.paper.fgcolor != n:
                     self.stack.palette.spread(self.paper.fgcolor, n)
-                    self.stack.set_palette(self.stack.palette.get_pil_palette())
+                    self.stack.set_palette(
+                        self.stack.palette.get_pil_palette())
                     self.pe_toggle_spread.set_active(False)
                     self.pe_paletteview.invalidate_all()
             self.paletteview.invalidate_all()
@@ -488,7 +504,7 @@ class PyntMain(object):
 
     def update_page_label(self):
         #stats = self.stack.get_layer_stats()
-        page = self.stacks.index(self.stack)+1
+        page = self.stacks.index(self.stack) + 1
         self.label_page.set_text("%d/%d"%(page, len(self.stacks)))
 
     def update_page_notebook(self):
@@ -497,13 +513,13 @@ class PyntMain(object):
             vbox = gtk.VBox()
             vbox.show()
             self.page_notebook.append_page(vbox)
-            n+=1
+            n += 1
         while n > len(self.stacks):
             self.page_notebook.remove_page(-1)
-            n-=1
+            n -= 1
         for i in range(n):
             p = self.page_notebook.get_nth_page(i)
-            self.page_notebook.set_tab_label_text(p, "%d"%(i+1))
+            self.page_notebook.set_tab_label_text(p, "%d"%(i + 1))
         self.page_notebook.set_current_page(self.stacks.index(self.stack))
 
 
@@ -515,19 +531,19 @@ class PyntMain(object):
             vbox = gtk.VBox()
             vbox.show()
             self.layer_notebook.append_page(vbox)
-            n+=1
+            n += 1
         while n > ln:
-            self.layer_notebook.remove_page(-1)
-            n-=1
+            self.layer_notebook.remove_page( -1 )
+            n -= 1
         for i in range(n):
-            p = self.layer_notebook.get_nth_page(n-i-1)
-            self.layer_notebook.set_tab_label_text(p, "%d"%(i+1))
-        self.layer_notebook.set_current_page(li-1)
+            p = self.layer_notebook.get_nth_page(n - i - 1)
+            self.layer_notebook.set_tab_label_text(p, "%d"%(i + 1))
+        self.layer_notebook.set_current_page(li - 1)
         self.layer_notebook.handler_unblock_by_func(self.on_change_layer)
 
     def update_layer_label(self):
         stats = self.stack.get_layer_stats()
-        self.label_layer.set_text("%d/%d"%stats)
+        self.label_layer.set_text("%d/%d" % stats)
         self.menu_layer_visible.handler_block_by_func(self.toggle_visible)
         #self.menu_animated.emit_stop_by_name("toggle_animated")
         if self.stack.get_layer().visible:
@@ -539,7 +555,7 @@ class PyntMain(object):
 
     def update_frame_label(self):
         stats = self.stack.get_frame_stats()
-        self.frame_layer.set_text("%d/%d"%stats)
+        self.frame_layer.set_text("%d/%d" % stats)
         self.menu_animated.handler_block_by_func(self.toggle_frame)
         #self.menu_animated.emit_stop_by_name("toggle_animated")
         if self.stack.get_layer().anim:
@@ -559,7 +575,6 @@ class PyntMain(object):
         self.stack.get_layer().visible = not self.stack.get_layer().visible
         bbox = self.stack.get_active_bbox()
         self.paper.invalidate_img_bbox(bbox)
-
 
     def add_layer(self):
         self.stack.add_layer()
@@ -596,7 +611,6 @@ class PyntMain(object):
         if bbox is not None:
             self.paper.invalidate_bbox(self.paper.get_paper_bbox(bbox))
 
-
     def on_layer_down(self, w):
         self.stack.move_layer_down()
         self.prev_layer()
@@ -605,18 +619,18 @@ class PyntMain(object):
         if bbox is not None:
             self.paper.invalidate_bbox(self.paper.get_paper_bbox(bbox))
 
-
     def toggle_frame(self, widget):
         self.stack.toggle_animated()
         self.update_frame_label()
 
     def next_layer(self):
-        bbox1=self.stack.get_active_bbox()
+        bbox1 = self.stack.get_active_bbox()
         if self.stack.next_layer():
-            bbox2=self.stack.get_active_bbox()
+            bbox2 = self.stack.get_active_bbox()
             combined_bbox = combine_bbox(bbox1, bbox2)
             if combined_bbox is not None:
-                self.paper.invalidate_bbox(self.paper.get_paper_bbox(combined_bbox))
+                self.paper.invalidate_bbox(
+                    self.paper.get_paper_bbox(combined_bbox))
             self.update_layer_label()
             self.update_frame_label()
             #self.update_layer_notebook()
@@ -627,7 +641,8 @@ class PyntMain(object):
             bbox2=self.stack.get_active_bbox()
             combined_bbox = combine_bbox(bbox1, bbox2)
             if combined_bbox is not None:
-                self.paper.invalidate_bbox(self.paper.get_paper_bbox(combined_bbox))
+                self.paper.invalidate_bbox(
+                    self.paper.get_paper_bbox(combined_bbox))
             self.update_layer_label()
             self.update_frame_label()
             self.update_layer_notebook()
@@ -639,7 +654,7 @@ class PyntMain(object):
         i = widget.get_current_page()
         n = widget.get_n_pages()
         print "page_num:", page_num
-        self.stack.set_active_layer(n-page_num-1)
+        self.stack.set_active_layer(n - page_num - 1)
         print "Page:" , page_num
         self.update_layer_label()
         self.update_frame_label()
@@ -650,7 +665,8 @@ class PyntMain(object):
             bbox2=self.stack.get_active_bbox()
             combined_bbox = combine_bbox(bbox1, bbox2)
             if combined_bbox is not None:
-                self.paper.invalidate_bbox(self.paper.get_paper_bbox(combined_bbox))
+                self.paper.invalidate_bbox(
+                    self.paper.get_paper_bbox(combined_bbox))
         self.update_layer_label()
         self.update_frame_label()
         self.update_layer_notebook()
@@ -661,27 +677,32 @@ class PyntMain(object):
             bbox2=self.stack.get_active_bbox()
             combined_bbox = combine_bbox(bbox1, bbox2)
             if combined_bbox is not None:
-                self.paper.invalidate_bbox(self.paper.get_paper_bbox(combined_bbox))
+                self.paper.invalidate_bbox(
+                    self.paper.get_paper_bbox(combined_bbox))
         self.update_layer_label()
         self.update_frame_label()
         self.update_layer_notebook()
 
 
     def image_scrolled(self):
-        self.view.offset=(int(self.hadjustment.get_value()), int(self.vadjustment.get_value()))
+        self.view.offset = (int(self.hadjustment.get_value()),
+                            int(self.vadjustment.get_value()))
         #print "hadj:" ,self.hadjustment.get_value(), self.hadjustment.get_page_size()
         #print "vadj:", self.vadjustment.get_value(), self.vadjustment.get_page_size()
 
-
     def set_random_color(self):
-        self.color=(random.randint(0,255), random.randint(0,255), random.randint(0,255), 255)
+        self.color = (random.randint(0,255),
+                      random.randint(0,255),
+                      random.randint(0,255),
+                      255)
 
     def set_tool(self, tool):
         print "Setting tool", tool
         if tool != self.paper.tool:
-            last_tool_btn = self.mainTree.get_widget("button_"+self.paper.tool)
+            last_tool_btn = self.mainTree.get_widget(
+                "button_" + self.paper.tool)
             last_tool_btn.set_active(False)
-            new_tool_btn = self.mainTree.get_widget("button_"+tool)
+            new_tool_btn = self.mainTree.get_widget("button_" + tool)
             #new_tool_btn.set_active(True)
             self.paper.tool = tool
             print self.paper.tool
@@ -721,9 +742,13 @@ class PyntMain(object):
         w, h = brush.size
         print "brush size:", w, h
         if brush.custom_brush:
-            tmp = self.stack.draw_brush(brush, None, self.view.get_img_coord(*coords), transient=transient)
+            tmp = self.stack.draw_brush(brush, None,
+                                        self.view.get_img_coord(*coords),
+                                        transient=transient)
         else:
-            tmp = self.stack.draw_brush(brush, color, self.view.get_img_coord(*coords), transient=transient)
+            tmp = self.stack.draw_brush(brush, color,
+                                        self.view.get_img_coord(*coords),
+                                        transient=transient)
 
         #bbox = (coords[0]-w*z//2, coords[1]-h*z//2, coords[0]+w*z//2, coords[1]+h*z//2)
         #if tmp is not None and transient:
@@ -737,7 +762,8 @@ class PyntMain(object):
 
         x0, y0, x1, y1 =  bbox
         #print "X:", x1, " Y:", y1
-        if x1>0 and y1>0 and x1<self.view.get_xlim() and y1<self.view.get_ylim():
+        if all((x1 > 0, y1 > 0, x1 < self.view.get_xlim(),
+                y1 < self.view.get_ylim())):
             #print "drawing line:", bbox, color
             startx, starty = self.view.get_img_coord(x0, y0)
             endx, endy = self.view.get_img_coord(x1, y1)
@@ -752,7 +778,6 @@ class PyntMain(object):
         #print "X:", x, " Y:", y
         x, y = xy
         if x<self.view.get_xlim() and y<self.view.get_ylim():
-
             startx, starty = self.view.get_img_coord(self.lx, self.ly)
             endx, endy = self.view.get_img_coord(*xy)
             coords = self.stack.draw_rect(color, (startx, starty, endx, endy))
@@ -767,11 +792,12 @@ class PyntMain(object):
     def draw_ellipse(self, widget, color, xy):
         #print "X:", x, " Y:", y
         x, y = xy
-        if x<self.view.get_xlim() and y<self.view.get_ylim():
+        if x < self.view.get_xlim() and y < self.view.get_ylim():
 
             startx, starty = self.view.get_img_coord(self.lx, self.ly)
             endx, endy = self.view.get_img_coord(*xy)
-            coords = self.stack.draw_ellipse(color, (startx, starty, endx, endy))
+            coords = self.stack.draw_ellipse(color,
+                                             (startx, starty, endx, endy))
             #self.lx, self.ly += (int(self.scrolling_window.get_hadjustment().get_value()),
             #                    int(self.scrolling_window.get_vadjustment().get_value()))
             #self.lx, self.ly = coords[:2]
@@ -781,13 +807,14 @@ class PyntMain(object):
             self.update_view(widget, *newcoords)
 
     def get_visible(self):
-        x, y = int(self.hadjustment.get_value()), int(self.vadjustment.get_value())
+        x = int(self.hadjustment.get_value())
+        y = int(self.vadjustment.get_value())
         w, h = self.viewport.size_request()
-        return (x, y, x+w, y+h)
+        return (x, y, x + w, y + h)
 
     def floodfill(self, widget, color, xy):
         x, y = xy
-        if x<self.view.get_xlim() and y<self.view.get_ylim():
+        if x < self.view.get_xlim() and y < self.view.get_ylim():
             x0y0 = self.view.get_img_coord(*xy)
             self.stack.floodfill(color, x0y0)
             bbox = self.get_visible()
@@ -828,8 +855,9 @@ class PyntMain(object):
             x, y = x1-1, y1-1
             w, h = x0-x, y0-y
 
-        p=padding
-        self.view.update(self.drawing_area.window, self.stack, x-p, y-p, w+2*p, h+2*p)
+        p = padding
+        self.view.update(self.drawing_area.window, self.stack,
+                         x-p, y-p, w+2*p, h+2*p)
         #self.drawing_area.queue_draw_area(x-p, y-p, w+2*p, h+2*p)
 
     def sb_push(self, message):
@@ -854,7 +882,8 @@ class PyntMain(object):
     def on_save_session_as(self, widget):
         """Save current session as a Pynt file (pickled python object)"""
         filedir, filename = os.path.split(self.save_file)
-        save_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE, file_dir=filedir,
+        save_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE,
+                                file_dir=filedir,
                                 file_name=filename, file_ext="pynt")
         if save_file != "":
             self.save_file = self.save_session(save_file)
@@ -880,7 +909,8 @@ class PyntMain(object):
     def on_save_image_as(self, widget):
         """Save current image as a Pynt file (pickled python object)"""
         filedir, filename = os.path.split(self.save_file)
-        save_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE, file_dir=filedir,
+        save_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE,
+                                file_dir=filedir,
                                 file_name=filename, file_ext="pynt")
         if save_file != "":
             if not save_file.endswith(".pynt"):
@@ -895,8 +925,9 @@ class PyntMain(object):
         """Export image as a palette based PNG (layers are merged in the image)"""
         filedir, filename = os.path.split(self.brush_file)
         filename = os.path.splitext(filename)[0] + ".png"
-        brush_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE, file_dir=filedir,
-                                file_name=filename, file_ext="png")
+        brush_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE,
+                                 file_dir=filedir,
+                                 file_name=filename, file_ext="png")
         if brush_file != "":
             path, extension = os.path.splitext(brush_file)
             if extension == "":
@@ -909,7 +940,8 @@ class PyntMain(object):
 
     def on_load_session(self, widget):
         filedir, filename = os.path.split(self.save_file)
-        load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN, file_dir=filedir,
+        load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN,
+                                file_dir=filedir,
                                 file_name=filename, file_ext="pynt")
         if load_file != "":
             f = open(load_file, "r")
@@ -925,7 +957,8 @@ class PyntMain(object):
             self.stack = self.stacks[0]
             f.close()
 
-            self.paletteview.palette = self.pe_paletteview.palette = self.stack.palette
+            self.paletteview.palette = self.pe_paletteview.palette = \
+                self.stack.palette
             self.paletteview.invalidate_all()
             self.pe_paletteview.invalidate_all()
             self.paper.stack = self.stack
@@ -941,7 +974,8 @@ class PyntMain(object):
     def on_load_image(self, widget):
         """Load a Pynt image file"""
         filedir, filename = os.path.split(self.save_file)
-        load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN, file_dir=filedir,
+        load_file = file_browse(gtk.FILE_CHOOSER_ACTION_OPEN,
+                                file_dir=filedir,
                                 file_name=filename, file_ext="pynt")
         if load_file != "":
             f = open(load_file, "r")
@@ -950,8 +984,8 @@ class PyntMain(object):
 
             self.stack = PyntStack(data=pyntdata)
 
-
-            self.paletteview.palette = self.pe_paletteview.palette = self.stack.palette
+            self.paletteview.palette = self.pe_paletteview.palette = \
+                self.stack.palette
             self.paletteview.invalidate_all()
             self.pe_paletteview.invalidate_all()
             self.paper.stack = self.stack
@@ -979,9 +1013,10 @@ class PyntMain(object):
 
             f.close()
 
-
     def on_export_image(self, widget):
-        """Export image as a palette based PNG (layers are merged in the image)"""
+        """Export image as a palette based PNG
+        (layers are merged in the image).
+        """
         filedir, filename = os.path.split(self.save_file)
         filename = os.path.splitext(filename)[0] + ".png"
         save_file = file_browse(gtk.FILE_CHOOSER_ACTION_SAVE, file_dir=filedir,
@@ -1030,7 +1065,8 @@ class PyntMain(object):
 
     def button_press_event(self, widget, event):
         print "button pressed..."
-        if (event.button == 1 or event.button == 3) and self.view.pixmap != None and self.stack.mode is None:
+        if (event.button == 1 or event.button == 3) and \
+                self.view.pixmap != None and self.stack.mode is None:
             #self.stack.clear_scratch()
             bbox = self.stack.erase_last_brush(self.brush)
             if bbox is not None:
@@ -1043,9 +1079,12 @@ class PyntMain(object):
             self.ly = int(event.y)
 
             if self.tool == "pencil":
-                self.draw_brush(widget, self.brush, self.stack.palette.fgcolor, (self.lx, self.ly))
+                self.draw_brush(widget, self.brush,
+                                self.stack.palette.fgcolor, (self.lx, self.ly))
             elif self.tool == "points":
-                self.draw_brush(widget, self.brush, self.stack.palette.fgcolor, (self.lx, self.ly), transient=True)
+                self.draw_brush(widget, self.brush,
+                                self.stack.palette.fgcolor,
+                                (self.lx, self.ly), transient=True)
             return True
 
     def button_release_event(self, widget, event):
@@ -1064,8 +1103,10 @@ class PyntMain(object):
         if self.tool == "brush":
             #print "Getting new brush..."
             bbox = (self.lx, self.ly, int(event.x), int(event.y))
-            tmp = self.stack.get_layer().image.crop(self.view.get_img_bbox(*bbox))
-            self.brush = PyntBrush(data=tmp, transp_color=self.stack.get_layer().image.transp_color)
+            tmp = self.stack.get_layer().image.crop(
+                self.view.get_img_bbox(*bbox))
+            self.brush = PyntBrush(data=tmp,
+                    transp_color=self.stack.get_layer().image.transp_color)
 
             #self.custom_brush = True
             self.stack.clear_scratch()
@@ -1118,49 +1159,59 @@ class PyntMain(object):
             self.lx = x
             self.ly = y
 
-            print "motion...", x,y
+            print "motion...", x, y
 
         elif True: #x != self.lx and y != self.ly:
 
-            print "motion...", x,y
-            if all((self.view.pixmap != None, x>0, y>0, x < self.view.get_xlim(), y < self.view.get_ylim())):
-                coords = self.view.get_img_coord(x,y)
+            print "motion...", x, y
+            if all((self.view.pixmap != None, x>0, y>0,
+                    x < self.view.get_xlim(), y < self.view.get_ylim())):
+                coords = self.view.get_img_coord(x, y)
                 lcoords = self.view.get_img_coord(self.lx, self.ly)
                 if self.stack.mode is None:
-                    self.label_coords.set_text("(%d, %d)"%coords)
+                    self.label_coords.set_text("(%d, %d)" % coords)
                     if self.tool in ("points", "pencil", "line"):
-                        self.draw_brush(widget, self.brush, self.stack.palette.fgcolor,
+                        self.draw_brush(widget, self.brush,
+                                        self.stack.palette.fgcolor,
                                         (x, y), transient=True)
                     self.lx, self.ly = x, y
                 else:
                     if self.tool == "points":
-                        self.draw_brush(widget, self.brush, self.stack.palette.fgcolor, (x, y))
-                        self.label_coords.set_text("(%d, %d)"%coords)
+                        self.draw_brush(widget, self.brush,
+                                        self.stack.palette.fgcolor, (x, y))
+                        self.label_coords.set_text("(%d, %d)" % coords)
 
                     elif self.tool == "pencil":
                         lx, ly = self.lx, self.ly
                         self.lx, self.ly = x, y
 
-                        self.draw_line(self.drawing_area, self.stack.palette.fgcolor, (lx, ly, x, y))
-                        self.draw_brush(widget, self.brush, self.palette.fgcolor, (x, y))
-                        self.label_coords.set_text("(%d, %d)"%coords)
+                        self.draw_line(self.drawing_area,
+                                       self.stack.palette.fgcolor,
+                                       (lx, ly, x, y))
+                        self.draw_brush(widget, self.brush,
+                                        self.palette.fgcolor, (x, y))
+                        self.label_coords.set_text("(%d, %d)" % coords)
 
                     elif self.tool in ("rectangle", "brush"):
                         self.draw_rect(widget, self.palette.fgcolor, (x, y))
-                        self.label_coords.set_text("(%d, %d)"%(coords[0]-lcoords[0], coords[1]-lcoords[1]))
-
+                        self.label_coords.set_text("(%d, %d)" % (
+                                                    coords[0] - lcoords[0],
+                                                    coords[1] - lcoords[1]))
                     elif self.tool == "ellipse":
                         self.draw_ellipse(widget, self.palette.fgcolor, (x, y))
-                        self.label_coords.set_text("(%d, %d)"%(coords[0]-lcoords[0], coords[1]-lcoords[1]))
-
+                        self.label_coords.set_text("(%d, %d)" % (
+                                                     coords[0] - lcoords[0],
+                                                     coords[1] - lcoords[1]))
                     elif self.tool == "line":
                         bbox = self.stack.clear_scratch()
                         if bbox is not None:
                             bbox = self.view.get_canvas_bbox(*bbox)
                             self.update_view(widget, *bbox)
-                            self.draw_line(widget, self.palette.fgcolor, (self.lx, self.lx, x, y))
-                            self.label_coords.set_text("%d"%(math.sqrt((coords[0]-lcoords[0])**2 + (coords[1]-lcoords[1])**2)))
-
+                            self.draw_line(widget, self.palette.fgcolor,
+                                           (self.lx, self.lx, x, y))
+                            self.label_coords.set_text("%d" % (
+                                math.sqrt((coords[0] - lcoords[0])**2 + \
+                                          (coords[1] - lcoords[1])**2)))
                 return True
 
 
