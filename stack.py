@@ -8,7 +8,8 @@ from utils import make_bbox, combine_bbox, floodfill, bucketfill
 
 class PyntChange(object):
     """An undoable operation"""
-    def __init__(self, segment, position, layer, segment2=None, operation="draw"):
+    def __init__(self, segment, position, layer, segment2=None,
+                 operation="draw"):
         self.segment = segment
         self.position = position
         self.layer = layer
@@ -17,16 +18,19 @@ class PyntChange(object):
 
     def get_bbox(self):
         #print "change bbox:", self.position + (self.segment.size[0]+self.position[0], self.segment.size[1]+self.position[1])
-        return self.position + (self.segment.size[0]+self.position[0], self.segment.size[1]+self.position[1])
+        return self.position + (self.segment.size[0] + self.position[0],
+                                self.segment.size[1]+self.position[1])
 
 
 class PyntLayer(object):
     """An image Layer (or Frame)"""
-    def __init__(self, data=None, opacity=1.0, resolution=(800,600), visible=True, anim=False, fillcolor=0):
+    def __init__(self, data=None, opacity=1.0, resolution=(800,600),
+                 visible=True, anim=False, fillcolor=0):
         if data is not None:
             self.image = PyntImagePalette(resolution=resolution, data=data)
         else:
-            self.image = PyntImagePalette(resolution=resolution, fillcolor=fillcolor)
+            self.image = PyntImagePalette(resolution=resolution,
+                                          fillcolor=fillcolor)
 
         self.opacity = opacity
         self.visible=visible
@@ -130,7 +134,8 @@ class PyntStack(object):
 
     def add_layer(self, data=None, visible=True, anim=False):
         if data is None:
-            l = PyntLayer(resolution=self.resolution, visible=visible, anim=anim)
+            l = PyntLayer(resolution=self.resolution, visible=visible,
+                          anim=anim)
             self.layers.insert(self.active_layer+1, l)
 
         else:
@@ -265,13 +270,17 @@ class PyntStack(object):
                 if i+1 == self.active_layer:
                     if self.mode == "erase":
                         #print "erasing"
-                        mask.paste(layer.image.transp_color, mask=layer.image.make_mask(scratch_area))
+                        mask.paste(layer.image.transp_color,
+                                   mask=layer.image.make_mask(scratch_area))
                         area.paste(next_area, mask=layer.image.make_mask(mask))
                     else:   #if self.mode in ("draw_fg", "draw_bg", None):
-                        area.paste(next_area, mask=layer.image.make_mask(next_area))
-                        area.paste(scratch_area, mask=layer.image.make_mask(scratch_area))
+                        area.paste(next_area,
+                                   mask=layer.image.make_mask(next_area))
+                        area.paste(scratch_area,
+                                   mask=layer.image.make_mask(scratch_area))
                 elif not layer.anim:
-                    area.paste(next_area, mask=layer.image.make_mask(next_area))
+                    area.paste(next_area,
+                               mask=layer.image.make_mask(next_area))
         return area
 
     def draw_line(self, color, width, points, transient=False):
@@ -404,14 +413,17 @@ class PyntStack(object):
             #print scratch_bbox
             changed_part = l.image.crop(scratch_bbox)
             #changed_part.load()
-            new_change = PyntChange(changed_part, (scratch_bbox[0], scratch_bbox[1]),
+            new_change = PyntChange(changed_part, (scratch_bbox[0],
+                                                   scratch_bbox[1]),
                                     self.get_layer())
             self.changes.append(new_change)
             cropped_scratch = self.scratch.image.crop(scratch_bbox)
             if self.mode == "erase":
-                l.image.erase(scratch_bbox, mask=l.image.make_mask(cropped_scratch))
+                l.image.erase(scratch_bbox,
+                              mask=l.image.make_mask(cropped_scratch))
             else:
-                l.image.paste(cropped_scratch, scratch_bbox, mask=l.image.make_mask(cropped_scratch))
+                l.image.paste(cropped_scratch, scratch_bbox,
+                              mask=l.image.make_mask(cropped_scratch))
             self.scratch.image.erase(scratch_bbox)
             if len(self.changes) > 10:
                 del(self.changes[0])
