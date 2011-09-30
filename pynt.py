@@ -97,68 +97,70 @@ class PyntMain(object):
         #self.set_width(1)
         self.paper.show()
 
-        dic = {"on_mainWindow_destroy" : gtk.main_quit,
+        dic = {"on_mainWindow_destroy": gtk.main_quit,
                #"on_zoom_in" :  lambda w: self.set_zoom(self.view.zoom*2),
-               "on_zoom_in" :  lambda w: self.paper.set_zoom(self.paper.zoom*2),
-               "on_zoom_out" :  lambda w: self.paper.set_zoom(self.paper.zoom//2),
-               "on_next_layer" :  lambda w: self.next_layer(),
-               "on_prev_layer" :  lambda w: self.prev_layer(),
-               "on_add_layer" :  lambda w: self.add_layer(),
-               "on_delete_layer" :  lambda w: self.delete_layer(),
-               "on_menu_join_layers" : self.on_join_layers,
-               "on_layer_up" : self.on_layer_up,
-               "on_layer_down" : self.on_layer_down,
-               "on_button_points_clicked" : lambda w: self.set_tool("points"),
-               "on_button_pencil_clicked" : lambda w: self.set_tool("pencil"),
-               "on_button_line_clicked" : lambda w: self.set_tool("line"),
-               "on_button_rectangle_clicked" : lambda w:
+               "on_zoom_in": lambda w: self.paper.set_zoom(
+                   self.paper.zoom * 2),
+               "on_zoom_out": lambda w: self.paper.set_zoom(
+                   self.paper.zoom // 2),
+               "on_next_layer":  lambda w: self.next_layer(),
+               "on_prev_layer": lambda w: self.prev_layer(),
+               "on_add_layer": lambda w: self.add_layer(),
+               "on_delete_layer": lambda w: self.delete_layer(),
+               "on_menu_join_layers": self.on_join_layers,
+               "on_layer_up": self.on_layer_up,
+               "on_layer_down": self.on_layer_down,
+               "on_button_points_clicked": lambda w: self.set_tool("points"),
+               "on_button_pencil_clicked": lambda w: self.set_tool("pencil"),
+               "on_button_line_clicked": lambda w: self.set_tool("line"),
+               "on_button_rectangle_clicked": lambda w:
                          self.set_tool("rectangle"),
-               "on_button_floodfill_clicked" :
+               "on_button_floodfill_clicked":
                          lambda w: self.set_tool("floodfill"),
-               "on_button_ellipse_clicked" :
+               "on_button_ellipse_clicked":
                          lambda w: self.set_tool("ellipse"),
-               "on_button_brush_clicked" : lambda w: self.set_tool("brush"),
-               "on_button_colorpicker_clicked" :
+               "on_button_brush_clicked": lambda w: self.set_tool("brush"),
+               "on_button_colorpicker_clicked":
                          lambda w: self.set_tool("colorpicker"),
-               "on_button_width_value_changed" :
+               "on_button_width_value_changed":
                          lambda w: self.set_width(w.get_value_as_int()),
-               "on_menu_brush_hflip" : lambda w:
+               "on_menu_brush_hflip": lambda w:
                          self.paper.brush.flip(vertically=False),
-               "on_menu_brush_vflip" : lambda w:
+               "on_menu_brush_vflip": lambda w:
                          self.paper.brush.flip(vertically=True),
-               "on_menu_brush_rotate_plus90" : lambda w:
+               "on_menu_brush_rotate_plus90": lambda w:
                          self.paper.brush.rotate(90),
-               "on_menu_brush_rotate_minus90" : lambda w:
+               "on_menu_brush_rotate_minus90": lambda w:
                          self.paper.brush.rotate(-90),
-               "on_brush_solid_color_toggle" :
+               "on_brush_solid_color_toggle":
                          self.on_brush_solid_color_toggle,
-               "on_menu_brush_export" : self.on_export_brush,
-               "on_menu_image_resize" : self.on_menu_image_resize,
-               "on_menu_clear" : self.on_clear_layer,
-               "on_menu_animated_toggled" : self.toggle_frame,
-               "on_menu_layer_visible_toggled" : self.toggle_visible,
-               "on_menu_paletteeditor" : self.on_menu_paletteeditor,
-               "on_next_frame" : lambda w: self.next_frame(),
-               "on_prev_frame" : lambda w: self.prev_frame(),
-               "on_undo" : self.on_undo,
-               "on_redo" : self.on_redo,
-               "on_button_palette_prev_clicked" : self.palette_prev,
-               "on_button_palette_next_clicked" : self.palette_next,
-               "on_menu_save_activate" : self.on_save_session,
-               "on_menu_load_activate" : self.on_load_session,
-               "on_menu_save_as" : self.on_save_session_as,
-               "on_menu_import_image_activated" : self.on_import_image,
-               "on_menu_export_image_activated" : self.on_export_image,
+               "on_menu_brush_export": self.on_export_brush,
+               "on_menu_image_resize": self.on_menu_image_resize,
+               "on_menu_clear": self.on_clear_layer,
+               "on_menu_animated_toggled": self.toggle_frame,
+               "on_menu_layer_visible_toggled": self.toggle_visible,
+               "on_menu_paletteeditor": self.on_menu_paletteeditor,
+               "on_next_frame": lambda w: self.next_frame(),
+               "on_prev_frame": lambda w: self.prev_frame(),
+               "on_undo": self.on_undo,
+               "on_redo": self.on_redo,
+               "on_button_palette_prev_clicked": self.palette_prev,
+               "on_button_palette_next_clicked": self.palette_next,
+               "on_menu_save_activate": self.on_save_session,
+               "on_menu_load_activate": self.on_load_session,
+               "on_menu_save_as": self.on_save_session_as,
+               "on_menu_import_image_activated": self.on_import_image,
+               "on_menu_export_image_activated": self.on_export_image,
 
                #"on_pe_spinbutton_red_change_value" : self.on_pe_color_edited,
-               "on_menu_new_image" : self.on_new_image,
-               "on_menu_delete_image" : self.on_delete_image,
-               "on_pe_button_undo_clicked" : self.on_pe_button_undo,
-               "on_image_current_page_changed" : self.on_page_changed,
-               "on_menu_image_next" : self.on_image_next,
-               "on_menu_image_previous" : self.on_image_previous,
-               "on_page_notebook_switch_page" : self.on_change_image,
-               "on_layer_notebook_switch_page" : self.on_change_layer,
+               "on_menu_new_image": self.on_new_image,
+               "on_menu_delete_image": self.on_delete_image,
+               "on_pe_button_undo_clicked": self.on_pe_button_undo,
+               "on_image_current_page_changed": self.on_page_changed,
+               "on_menu_image_next": self.on_image_next,
+               "on_menu_image_previous": self.on_image_previous,
+               "on_page_notebook_switch_page": self.on_change_image,
+               "on_layer_notebook_switch_page": self.on_change_layer,
 
                }
 

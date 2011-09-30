@@ -145,17 +145,13 @@ def file_browse(dialog_action, file_dir="", file_name="", file_ext="pynt"):
     gtk.FILE_CHOOSER_ACTION_OPEN, gtk.FILE_CHOOSER_ACTION_SAVE
     file_name - Default name when doing a save"""
 
-    if (dialog_action==gtk.FILE_CHOOSER_ACTION_OPEN):
-        dialog_buttons = (gtk.STOCK_CANCEL
-                          , gtk.RESPONSE_CANCEL
-                          , gtk.STOCK_OPEN
-                          , gtk.RESPONSE_OK
+    if (dialog_action == gtk.FILE_CHOOSER_ACTION_OPEN):
+        dialog_buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                          gtk.STOCK_OPEN, gtk.RESPONSE_OK
             )
     else:
-        dialog_buttons = (gtk.STOCK_CANCEL
-                          , gtk.RESPONSE_CANCEL
-                          , gtk.STOCK_SAVE
-                          , gtk.RESPONSE_OK
+        dialog_buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                          gtk.STOCK_SAVE, gtk.RESPONSE_OK
             )
 
     file_dialog = gtk.FileChooserDialog(title="Select Project",
@@ -163,7 +159,7 @@ def file_browse(dialog_action, file_dir="", file_name="", file_ext="pynt"):
                                         buttons=dialog_buttons
         )
     """set the filename if we are saving"""
-    if (dialog_action==gtk.FILE_CHOOSER_ACTION_SAVE):
+    if (dialog_action == gtk.FILE_CHOOSER_ACTION_SAVE):
         file_dialog.set_current_name(file_name)
 
         if file_dir != "":
