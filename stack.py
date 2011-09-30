@@ -19,12 +19,12 @@ class PyntChange(object):
     def get_bbox(self):
         #print "change bbox:", self.position + (self.segment.size[0]+self.position[0], self.segment.size[1]+self.position[1])
         return self.position + (self.segment.size[0] + self.position[0],
-                                self.segment.size[1]+self.position[1])
+                                self.segment.size[1] + self.position[1])
 
 
 class PyntLayer(object):
     """An image Layer (or Frame)"""
-    def __init__(self, data=None, opacity=1.0, resolution=(800,600),
+    def __init__(self, data=None, opacity=1.0, resolution=(800, 600),
                  visible=True, anim=False, fillcolor=0):
         if data is not None:
             self.image = PyntImagePalette(resolution=resolution, data=data)
@@ -33,15 +33,15 @@ class PyntLayer(object):
                                           fillcolor=fillcolor)
 
         self.opacity = opacity
-        self.visible=visible
-        self.anim=anim
+        self.visible = visible
+        self.anim = anim
 
 
 class PyntStack(object):
     """A stack is a number of Layers in a certain order. Drawing operations
     on the stack are performed on the active layer, and are undoable."""
 
-    def __init__(self, resolution=(800,600), data=None, palette=None):
+    def __init__(self, resolution=(800, 600), data=None, palette=None):
 
         self.layers=[]
         self.layers.append(PyntLayer(resolution=resolution, fillcolor=0))
@@ -71,7 +71,7 @@ class PyntStack(object):
         self.undone_changes = []
         self.last_rect_bbox = None
         self.mode = None
-        self.last_brush_bbox=None
+        self.last_brush_bbox = None
 
         self.set_palette(self.palette.get_pil_palette())
 
@@ -79,8 +79,7 @@ class PyntStack(object):
         self.get_layer().image.set_transp_color(n)
         self.scratch.image.set_transp_color(n)
         w, h = self.scratch.image.resolution
-        self.scratch.image.erase((0,0,w,h))
-
+        self.scratch.image.erase((0, 0, w, h))
 
     def get_pixel(self, pos):
         """return the color value of a pixel from one layer."""
@@ -114,16 +113,15 @@ class PyntStack(object):
 
     def get_layer_stats(self):
         """Information about the stack"""
-        return (self.active_layer, len(self.layers)-1)
+        return (self.active_layer, len(self.layers) - 1)
 
     def get_frame_stats(self):
-        n=0
-        j=0
+        n = j = 0
         for i, f in enumerate(self.layers[1:]):
            if f.anim:
-               n+=1
-               if i+1 == self.active_layer:
-                   j=n
+               n += 1
+               if i + 1 == self.active_layer:
+                   j = n
         return (j, n)
 
     def get_active_bbox(self):
@@ -136,12 +134,12 @@ class PyntStack(object):
         if data is None:
             l = PyntLayer(resolution=self.resolution, visible=visible,
                           anim=anim)
-            self.layers.insert(self.active_layer+1, l)
+            self.layers.insert(self.active_layer + 1, l)
 
         else:
             l = PyntLayer(resolution=self.resolution, data=data,
                           visible=visible, anim=anim)
-            self.layers.insert(self.active_layer+1, l)
+            self.layers.insert(self.active_layer + 1, l)
         return l
 
     def delete_layer(self, n=None):
@@ -149,7 +147,7 @@ class PyntStack(object):
             n = self.active_layer
         if len(self.layers) > 1:
             del(self.layers[n])
-            self.active_layer = max(1, self.active_layer-1)
+            self.active_layer = max(1, self.active_layer - 1)
             return True
         else:  #Can't delete if there's only one layer
             return False
@@ -185,7 +183,7 @@ class PyntStack(object):
             n=self.active_layer
         tmp = self.layers[n]
         del self.layers[n]
-        self.layers.insert(n+1, tmp)
+        self.layers.insert(n + 1, tmp)
 
 
     def move_layer_down(self, n=None):
@@ -193,7 +191,7 @@ class PyntStack(object):
             n=self.active_layer
         tmp = self.layers[n]
         del self.layers[n]
-        self.layers.insert(max(1,n-1), tmp)
+        self.layers.insert(max(1, n - 1), tmp)
 
     def set_active_layer(self, new):
         self.active_layer = new
@@ -223,49 +221,45 @@ class PyntStack(object):
         else:
             return False
 
-
     def next_frame(self):
         #if self.layers[self.active_layer].anim:
         #    self.layers[self.active_layer].visible = False
-        for i, f in enumerate(self.layers[self.active_layer+1:]):
+        for i, f in enumerate(self.layers[self.active_layer + 1:]):
             if f.anim:
-                self.set_active_layer(self.active_layer+1+i)
+                self.set_active_layer(self.active_layer + 1 + i)
                 #self.layers[self.active_layer].visible = True
                 return True
-        for i,f in enumerate(self.layers[1:self.active_layer+1]):
+        for i,f in enumerate(self.layers[1:self.active_layer + 1]):
             if f.anim:
-                self.set_active_layer(1+i)
+                self.set_active_layer(1 + i)
                 #self.layers[self.active_layer].visible = True
                 return True
         return False
-
-
 
     def prev_frame(self):
         #if self.layers[self.active_layer].anim:
         #    self.layers[self.active_layer].visible = False
-        for i, f in enumerate(self.layers[self.active_layer-1:0:-1]):
+        for i, f in enumerate(self.layers[self.active_layer - 1:0:-1]):
             if f.anim:
-                self.set_active_layer(self.active_layer-1-i)
+                self.set_active_layer(self.active_layer - 1 - i)
                 #self.layers[self.active_layer].visible = True
                 return True
-        for i,f in enumerate(self.layers[-1:self.active_layer-1:-1]):
+        for i,f in enumerate(self.layers[-1:self.active_layer - 1:-1]):
             if f.anim:
-                self.set_active_layer(len(self.layers)-1-i)
+                self.set_active_layer(len(self.layers) - 1 - i)
                 #self.layers[self.active_layer].visible = True
                 return True
         return False
 
-
     def get_area(self, x0, y0, x1, y1):
         #print "get_area"
-        area = self.layers[0].image.crop((x0,y0,x1,y1))
-        scratch_area = self.scratch.image.crop((x0,y0,x1,y1))
+        area = self.layers[0].image.crop((x0, y0, x1, y1))
+        scratch_area = self.scratch.image.crop((x0, y0, x1, y1))
         #if self.active_layer == 0:
         #    area.paste(scratch_area, scratch_area)
         for i, layer in enumerate(self.layers[1:]):
             if layer.visible:
-                next_area = layer.image.crop((x0,y0,x1,y1))
+                next_area = layer.image.crop((x0, y0, x1, y1))
                 mask = next_area.copy()
                 if i+1 == self.active_layer:
                     if self.mode == "erase":
@@ -287,13 +281,13 @@ class PyntStack(object):
         if not transient:
             self.scratch.image.draw_line(color, width, points)
             bbox = make_bbox(points)
-            w = int(round(width+0.5))
-            return (bbox[0]-w, bbox[1]-w, bbox[2]+w, bbox[3]+w)
+            w = int(round(width + 0.5))
+            return (bbox[0] - w, bbox[1] - w, bbox[2] + w, bbox[3] + w)
         else:
             old_bbox = self.last_rect_bbox
             bbox = make_bbox(points)
-            w = int(round(width+0.5))
-            bbox = (bbox[0]-w, bbox[1]-w, bbox[2]+w, bbox[3]+w)
+            w = int(round(width + 0.5))
+            bbox = (bbox[0] - w, bbox[1] - w, bbox[2] + w, bbox[3] + w)
             if old_bbox is not None:
                 self.scratch.image.erase(old_bbox)
                 total_bbox = combine_bbox(old_bbox, bbox)
@@ -309,7 +303,7 @@ class PyntStack(object):
         else:
             old_bbox = self.last_rect_bbox
             bbox = make_bbox(bbox)
-            new_bbox = (bbox[0], bbox[1], bbox[2]+1, bbox[3]+1)
+            new_bbox = (bbox[0], bbox[1], bbox[2] + 1, bbox[3] + 1)
             if old_bbox is not None:
                 self.scratch.image.erase(old_bbox)
                 total_bbox = combine_bbox(old_bbox, new_bbox)
@@ -325,7 +319,7 @@ class PyntStack(object):
         else:
             old_bbox = self.last_rect_bbox
             bbox = make_bbox(bbox)
-            new_bbox = (bbox[0], bbox[1], bbox[2]+1, bbox[3]+1)
+            new_bbox = (bbox[0], bbox[1], bbox[2] + 1, bbox[3] + 1)
             if old_bbox is not None:
                 self.scratch.image.erase(old_bbox)
                 total_bbox = combine_bbox(old_bbox, new_bbox)
@@ -335,31 +329,29 @@ class PyntStack(object):
             self.last_rect_bbox = new_bbox
             return total_bbox
 
-
     def draw_brush(self, brush, color, pos, transient=False):
         #print "drawing brush at:", pos
         #print brush
-        pos=(pos[0]+1,pos[1]+1)  #tweak to make brush end up in the right place...
-        w,h = int(brush.size[0]/2), int(brush.size[1]/2)
+        pos=(pos[0] + 1, pos[1] + 1)  #tweak to make brush end up in the right place...
+        w,h = int(brush.size[0] / 2), int(brush.size[1] / 2)
         if self.last_brush_bbox is not None and transient:
             self.scratch.image.erase(self.last_brush_bbox)
         if color is None:
             print "no color"
-            self.scratch.image.paste(brush.data, (pos[0]-w, pos[1]-h),
+            self.scratch.image.paste(brush.data, (pos[0] - w, pos[1] - h),
                                      mask=brush.get_mask())
         else:
-            self.scratch.image.paint(color, (pos[0]-w, pos[1]-h),
+            self.scratch.image.paint(color, (pos[0] - w, pos[1] - h),
                                      mask=brush.get_mask())
         if self.last_brush_bbox is None:
-            new = ((pos[0]-w, pos[1]-h, pos[0]+w+1, pos[1]+h+1))
+            new = ((pos[0]-w, pos[1]-h, pos[0] + w + 1, pos[1] + h + 1))
             self.last_brush_bbox = new
             return new
         else:
-            new = ((pos[0]-w, pos[1]-h, pos[0]+w+1, pos[1]+h+1))
+            new = ((pos[0]-w, pos[1]-h, pos[0] + w + 1, pos[1] + h + 1))
             last = self.last_brush_bbox
             self.last_brush_bbox = new
             return combine_bbox(new, last)
-
 
     def erase_last_brush(self, brush):
         w,h = brush.size
