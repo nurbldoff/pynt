@@ -87,7 +87,8 @@ class PyntMain(object):
         self.scrolledwindow.add(self.paper)
 
         self.page_notebook = self.mainTree.get_widget("page_notebook")
-        self.layer_notebook = self.mainTree.get_widget("layer_notebook")
+        #self.layer_notebook = self.mainTree.get_widget("layer_notebook")
+        self.layers_vbox = self.mainTree.get_widget("layers_vbox")
 
         self.paper.connect("fgcolor-picked", self.set_fgcolor)
         self.paper.connect("bgcolor-picked", self.set_bgcolor)
@@ -161,11 +162,9 @@ class PyntMain(object):
                "on_menu_image_previous": self.on_image_previous,
                "on_page_notebook_switch_page": self.on_change_image,
                "on_layer_notebook_switch_page": self.on_change_layer,
-
                }
 
         self.mainTree.signal_autoconnect(dic)
-
 
 #         self.drawing_area = gtk.DrawingArea()
 #         self.view = PyntView(self.drawing_area, self.stack)
@@ -274,6 +273,8 @@ class PyntMain(object):
         self.button_width = self.mainTree.get_widget("button_width")
         #self.button_width.configure(None, 1, 0)
         #self.button_width.set_range(1, 99)
+
+        self.update_layers_vbox()
 
         print "main..."
         self.paper.grab_focus()
@@ -524,6 +525,39 @@ class PyntMain(object):
             self.page_notebook.set_tab_label_text(p, "%d"%(i + 1))
         self.page_notebook.set_current_page(self.stacks.index(self.stack))
 
+    def make_layer_box(self, layer):
+        hbox = gtk.HBox(True, 2)
+        button = gtk.ToggleButton(str(self.stack.layers.index(layer)))
+        button.connect("clicked", self.on_change_layer, layer)
+        hbox.pack_start(button)
+        button.show()
+        return hbox
+
+    def update_layers_vbox(self):
+        self.layers_vbox.foreach(self.layers_vbox.remove)
+        active_layer, n_layers = self.stack.get_layer_stats()
+
+        for layer in self.stack.layers[:-1]:
+            print "adding layer..."
+            layer.box = self.make_layer_box(layer)
+            self.layers_vbox.pack_end(layer.box)
+            layer.box.show()
+
+        # self.layer_notebook.handler_block_by_func(self.on_change_layer)
+        # while n < ln:
+        #     vbox = gtk.VBox()
+        #     vbox.show()
+        #     self.layer_notebook.append_page(vbox)
+        #     n += 1
+        # while n > ln:
+        #     self.layer_notebook.remove_page( -1 )
+        #     n -= 1
+        # for i in range(n):
+        #     p = self.layer_notebook.get_nth_page(n - i - 1)
+        #     self.layer_notebook.set_tab_label_text(p, "%d"%(i + 1))
+        # self.layer_notebook.set_current_page(li - 1)
+        # self.layer_notebook.handler_unblock_by_func(self.on_change_layer)
+
 
     def update_layer_notebook(self):
         n = self.layer_notebook.get_n_pages()
@@ -583,7 +617,7 @@ class PyntMain(object):
         self.next_layer()
         self.update_layer_label()
         self.update_frame_label()
-        self.update_layer_notebook()
+        self.update_layers_vbox()
 
     def delete_layer(self):
         bbox = self.stack.get_active_bbox()
@@ -592,7 +626,7 @@ class PyntMain(object):
         self.update_layer_label()
         self.update_frame_label()
         self.paper.invalidate_img_bbox(bbox)
-        self.update_layer_notebook()
+        self.update_layers_vbox()
 
     def on_join_layers(self, w):
         bbox = self.stack.get_active_bbox()
@@ -600,7 +634,7 @@ class PyntMain(object):
             self.update_layer_label()
             self.update_frame_label()
             self.paper.invalidate_img_bbox(bbox)
-            self.update_layer_notebook()
+            self.update_layers_vbox()
 
     def set_busy_pointer(self, state):
         pass
@@ -612,6 +646,7 @@ class PyntMain(object):
         bbox = self.stack.get_active_bbox()
         if bbox is not None:
             self.paper.invalidate_bbox(self.paper.get_paper_bbox(bbox))
+        self.update_layers_vbox()
 
     def on_layer_down(self, w):
         self.stack.move_layer_down()
@@ -620,6 +655,7 @@ class PyntMain(object):
         bbox = self.stack.get_active_bbox()
         if bbox is not None:
             self.paper.invalidate_bbox(self.paper.get_paper_bbox(bbox))
+        self.update_layers_vbox()
 
     def toggle_frame(self, widget):
         self.stack.toggle_animated()
@@ -637,29 +673,35 @@ class PyntMain(object):
             self.update_frame_label()
             #self.update_layer_notebook()
 
+
     def prev_layer(self):
-        bbox1=self.stack.get_active_bbox()
+        bbox1 = self.stack.get_active_bbox()
         if self.stack.prev_layer():
-            bbox2=self.stack.get_active_bbox()
+            bbox2 = self.stack.get_active_bbox()
             combined_bbox = combine_bbox(bbox1, bbox2)
             if combined_bbox is not None:
                 self.paper.invalidate_bbox(
                     self.paper.get_paper_bbox(combined_bbox))
             self.update_layer_label()
             self.update_frame_label()
-            self.update_layer_notebook()
+            #self.update_layer_notebook()
 
-    def on_change_layer(self, widget, page, page_num):
-        print "on_change_layer"
-        #self.image_notebook.prev_page()
-        #self.image_notebook.queue_draw_area(0,0,-1,-1)
-        i = widget.get_current_page()
-        n = widget.get_n_pages()
-        print "page_num:", page_num
-        self.stack.set_active_layer(n - page_num - 1)
-        print "Page:" , page_num
+    def change_layer(self, layer):
+        print "changing to layer %s"%self.stack.layers.index(layer)
+        bbox1 = self.stack.get_active_bbox()
+        self.stack.get_layer().box.get_children()[0].set_active(False)
+        self.stack.set_active_layer(self.stack.layers.index(layer) + 1)
+        layer.box.get_children()[0].set_active(True)
+        bbox2 = self.stack.get_active_bbox()
+        combined_bbox = combine_bbox(bbox1, bbox2)
+        if combined_bbox is not None:
+            self.paper.invalidate_bbox(
+                self.paper.get_paper_bbox(combined_bbox))
         self.update_layer_label()
         self.update_frame_label()
+
+    def on_change_layer(self, widget, layer):
+        self.change_layer(layer)
 
     def next_frame(self):
         bbox1=self.stack.get_active_bbox()

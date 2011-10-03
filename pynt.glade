@@ -1246,38 +1246,31 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkScrolledWindow" id="scrolledwindow1">
+                      <widget class="GtkVBox" id="vbox11">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="hscrollbar_policy">never</property>
-                        <property name="vscrollbar_policy">automatic</property>
+                        <property name="can_focus">False</property>
                         <child>
-                          <widget class="GtkVBox" id="vbox12">
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <widget class="GtkVBox" id="layers_vbox">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
                               <placeholder/>
                             </child>
-                            <child>
-                              <widget class="GtkVBox" id="layers_vbox">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                              </widget>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
                           </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="pack_type">end</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
